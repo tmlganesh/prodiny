@@ -1,287 +1,319 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, Users, Calendar, ArrowUpCircle, MessageSquare } from 'lucide-react';
+import { Search, User, LogOut, Plus, MessageSquare, Users, Heart } from 'lucide-react';
 import api from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
-  const [projects, setProjects] = useState([]);
-  const [colleges, setColleges] = useState([]);
-  const [recommendedSubgroups, setRecommendedSubgroups] = useState([]);
-  const [expandedCollege, setExpandedCollege] = useState(null);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState([]);
+  const [subgroups, setSubgroups] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const [newPost, setNewPost] = useState({ title: '', content: '' });
+  const [showCreatePost, setShowCreatePost] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    fetchPosts();
+    fetchSubgroups();
   }, []);
 
-  const fetchData = async () => {
+  const fetchPosts = async () => {
     try {
-      const [projectsRes, collegesRes, recommendedRes] = await Promise.all([
-        api.get('/projects?limit=10'),
-        api.get('/colleges?limit=5'),
-        api.get('/subgroups/recommended')
-      ]);
-
-      setProjects(projectsRes.data.projects);
-      setColleges(collegesRes.data.colleges);
-      setRecommendedSubgroups(recommendedRes.data);
+      const response = await api.get('/projects?limit=20');
+      setPosts(response.data.projects || []);
     } catch (error) {
-      toast.error('Failed to fetch data');
+      console.error('Error fetching posts:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleJoinProject = async (projectId) => {
+  const fetchSubgroups = async () => {
     try {
-      await api.post(`/projects/${projectId}/join`);
-      toast.success('Successfully joined the project!');
-      fetchData(); // Refresh data
+      const response = await api.get('/subgroups/recommended');
+      setSubgroups(response.data || []);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to join project');
+      console.error('Error fetching subgroups:', error);
     }
   };
 
-  const handleJoinSubgroup = async (subgroupId) => {
+  const handleCreatePost = async (e) => {
+    e.preventDefault();
+    if (!newPost.title.trim() || !newPost.content.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
     try {
-      await api.post(`/subgroups/${subgroupId}/join`);
-      toast.success('Successfully joined the subgroup!');
-      fetchData(); // Refresh data
+      await api.post('/projects', {
+        title: newPost.title,
+        description: newPost.content,
+        status: 'active',
+        tags: []
+      });
+      toast.success('Post created successfully!');
+      setNewPost({ title: '', content: '' });
+      setShowCreatePost(false);
+      fetchPosts();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to join subgroup');
+      toast.error('Failed to create post');
     }
   };
 
-  const fetchCollegeDetails = async (collegeId) => {
-    try {
-      const response = await api.get(`/colleges/${collegeId}`);
-      return response.data;
-    } catch (error) {
-      toast.error('Failed to fetch college details');
-      return null;
-    }
+  const formatTimeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    return `${Math.floor(diffInHours / 24)}d ago`;
   };
 
-  const toggleCollege = async (collegeId) => {
-    if (expandedCollege === collegeId) {
-      setExpandedCollege(null);
-    } else {
-      setExpandedCollege(collegeId);
-      // Fetch detailed college info if not already loaded
-      const college = colleges.find(c => c._id === collegeId);
-      if (!college.subgroups || college.subgroups.length === 0) {
-        const details = await fetchCollegeDetails(collegeId);
-        if (details) {
-          setColleges(colleges.map(c => 
-            c._id === collegeId ? { ...c, subgroups: details.subgroups } : c
-          ));
-        }
-      }
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-reddit-orange"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-reddit-orange border-r-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-reddit-lightgray">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Feed */}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+        <div className="container mx-auto flex h-16 max-w-7xl items-center px-4">
+          {/* Logo */}
+          <div className="flex items-center space-x-2">
+            <div className="h-8 w-8 bg-reddit-orange rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">P</span>
+            </div>
+            <span className="font-bold text-xl">Prodiny</span>
+          </div>
+          
+          {/* Search */}
+          <div className="flex flex-1 items-center justify-center px-6">
+            <div className="relative w-full max-w-md">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <input
+                type="search"
+                placeholder="Search posts, communities..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reddit-orange focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {/* User Menu */}
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
+                <span className="text-gray-600 font-medium text-sm">
+                  {user?.name?.charAt(0) || 'U'}
+                </span>
+              </div>
+              <span className="text-sm font-medium hidden md:block">{user?.name}</span>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="container mx-auto max-w-7xl px-4 py-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+          {/* Main Feed - 3 columns */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Welcome Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Welcome back, {user?.name}!
-              </h1>
-              <p className="text-gray-600">
-                Discover new projects and connect with your college community.
-              </p>
+            {/* Create Post */}
+            <div className="bg-white rounded-lg border p-6">
+              {!showCreatePost ? (
+                <button
+                  onClick={() => setShowCreatePost(true)}
+                  className="w-full flex items-center space-x-3 p-3 text-left text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
+                    <span className="text-gray-600 font-medium text-sm">
+                      {user?.name?.charAt(0) || 'U'}
+                    </span>
+                  </div>
+                  <span>What's on your mind?</span>
+                </button>
+              ) : (
+                <form onSubmit={handleCreatePost} className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="Post title..."
+                    value={newPost.title}
+                    onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reddit-orange"
+                  />
+                  <textarea
+                    placeholder="What's happening in your project?"
+                    value={newPost.content}
+                    onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                    rows={4}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reddit-orange resize-none"
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCreatePost(false);
+                        setNewPost({ title: '', content: '' });
+                      }}
+                      className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2 bg-reddit-orange text-white rounded-lg hover:bg-orange-600 font-medium"
+                    >
+                      Post
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
 
-            {/* Projects Feed */}
-            <div className="bg-white rounded-lg shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Recent Projects</h2>
-              </div>
-              <div className="divide-y divide-gray-200">
-                {projects.map((project) => (
-                  <div key={project._id} className="p-6 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                        <ArrowUpCircle className="w-6 h-6 text-gray-400 hover:text-reddit-orange cursor-pointer" />
+            {/* Posts Feed */}
+            <div className="space-y-4">
+              {posts.length === 0 ? (
+                <div className="bg-white rounded-lg border p-12 text-center">
+                  <h3 className="text-lg font-semibold text-gray-900">No posts yet</h3>
+                  <p className="text-gray-500 mt-2">Be the first to create a post!</p>
+                </div>
+              ) : (
+                posts.map((post) => (
+                  <div key={post._id} className="bg-white rounded-lg border">
+                    <div className="p-6">
+                      <div className="flex items-center space-x-2 text-sm text-gray-500 mb-3">
+                        <span className="font-medium">r/{post.collegeId?.name || 'college'}</span>
+                        <span>•</span>
+                        <span>Posted by u/{post.ownerId?.name || 'user'}</span>
+                        <span>•</span>
+                        <span>{formatTimeAgo(post.createdAt)}</span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 text-sm text-gray-500 mb-1">
-                          <span className="font-medium">r/{project.collegeId?.name}</span>
-                          <span>•</span>
-                          <span>Posted by u/{project.ownerId?.name}</span>
-                          <span>•</span>
-                          <span>{new Date(project.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          {project.title}
-                        </h3>
-                        <p className="text-gray-700 mb-3">{project.description}</p>
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {project.tags?.map((tag, index) => (
+                      
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h3>
+                      <p className="text-gray-700 mb-4">{post.description}</p>
+                      
+                      {post.tags && post.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {post.tags.map((tag, index) => (
                             <span
                               key={index}
-                              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                              className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
                             >
                               {tag}
                             </span>
                           ))}
                         </div>
-                        <div className="flex items-center space-x-4 text-sm">
-                          <button 
-                            onClick={() => handleJoinProject(project._id)}
-                            className="flex items-center space-x-1 text-reddit-blue hover:text-reddit-lightblue"
-                          >
-                            <Users size={16} />
-                            <span>Join ({project.members?.length})</span>
-                          </button>
-                          <button className="flex items-center space-x-1 text-gray-500 hover:text-gray-700">
-                            <MessageSquare size={16} />
-                            <span>Discuss</span>
-                          </button>
-                          <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                            {project.status}
-                          </span>
-                        </div>
+                      )}
+                      
+                      <div className="flex items-center space-x-6 text-gray-500">
+                        <button className="flex items-center space-x-1 hover:text-gray-700">
+                          <Heart className="h-4 w-4" />
+                          <span className="text-sm">Like</span>
+                        </button>
+                        <button className="flex items-center space-x-1 hover:text-gray-700">
+                          <MessageSquare className="h-4 w-4" />
+                          <span className="text-sm">Comment</span>
+                        </button>
+                        <button className="flex items-center space-x-1 hover:text-gray-700">
+                          <Users className="h-4 w-4" />
+                          <span className="text-sm">Join ({post.members?.length || 0})</span>
+                        </button>
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                          {post.status}
+                        </span>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* College Communities Section */}
-            <div className="bg-white rounded-lg shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">College Communities</h2>
-              </div>
-              <div className="divide-y divide-gray-200">
-                {colleges.map((college) => (
-                  <div key={college._id}>
-                    <div 
-                      className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-                      onClick={() => toggleCollege(college._id)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-reddit-blue rounded-full flex items-center justify-center">
-                            <span className="text-white font-semibold">
-                              {college.name.charAt(0)}
-                            </span>
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{college.name}</h3>
-                            <p className="text-sm text-gray-500">
-                              {college.subgroups?.length || 0} subgroups • {college.projects?.length || 0} projects
-                            </p>
-                          </div>
-                        </div>
-                        {expandedCollege === college._id ? (
-                          <ChevronUp className="w-5 h-5 text-gray-400" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-gray-400" />
-                        )}
-                      </div>
-                    </div>
-                    
-                    {expandedCollege === college._id && (
-                      <div className="px-4 pb-4 bg-gray-50">
-                        <div className="ml-13 space-y-2">
-                          {college.subgroups?.map((subgroup) => (
-                            <div key={subgroup._id} className="flex items-center justify-between p-3 bg-white rounded-md">
-                              <div>
-                                <h4 className="font-medium text-gray-900">{subgroup.name}</h4>
-                                <p className="text-sm text-gray-500">{subgroup.description}</p>
-                                <p className="text-xs text-gray-400">
-                                  {subgroup.members?.length || 0} members
-                                </p>
-                              </div>
-                              <button 
-                                onClick={() => handleJoinSubgroup(subgroup._id)}
-                                className="px-3 py-1 text-sm bg-reddit-blue text-white rounded-full hover:bg-blue-600"
-                              >
-                                Join
-                              </button>
-                            </div>
-                          ))}
-                          {(!college.subgroups || college.subgroups.length === 0) && (
-                            <p className="text-sm text-gray-500 text-center py-4">
-                              No subgroups available yet.
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                ))
+              )}
             </div>
           </div>
 
-          {/* Sidebar */}
+          {/* Right Sidebar - 1 column */}
           <div className="space-y-6">
-            {/* Recommended Subgroups */}
-            <div className="bg-white rounded-lg shadow-sm">
-              <div className="px-4 py-3 border-b border-gray-200">
-                <h3 className="font-semibold text-gray-900">Recommended for You</h3>
+            {/* User Profile Card */}
+            <div className="bg-white rounded-lg border p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="h-12 w-12 bg-gray-300 rounded-full flex items-center justify-center">
+                  <span className="text-gray-600 font-medium text-lg">
+                    {user?.name?.charAt(0) || 'U'}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{user?.name}</h3>
+                  <p className="text-sm text-gray-500">{user?.collegeId?.name || 'College Student'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Popular Communities */}
+            <div className="bg-white rounded-lg border">
+              <div className="p-4 border-b">
+                <h3 className="font-semibold text-gray-900">Popular Communities</h3>
               </div>
               <div className="p-4 space-y-3">
-                {recommendedSubgroups.map((subgroup) => (
+                {subgroups.slice(0, 5).map((subgroup) => (
                   <div key={subgroup._id} className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-gray-900">{subgroup.name}</h4>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{subgroup.name}</p>
                       <p className="text-xs text-gray-500">
                         {subgroup.members?.length || 0} members
                       </p>
                     </div>
-                    <button 
-                      onClick={() => handleJoinSubgroup(subgroup._id)}
-                      className="px-2 py-1 text-xs bg-reddit-orange text-white rounded-full hover:bg-orange-600"
-                    >
+                    <button className="px-3 py-1 text-xs bg-reddit-orange text-white rounded-full hover:bg-orange-600">
                       Join
                     </button>
                   </div>
                 ))}
-                {recommendedSubgroups.length === 0 && (
-                  <p className="text-sm text-gray-500 text-center">
-                    No recommendations available.
-                  </p>
+                {subgroups.length === 0 && (
+                  <p className="text-sm text-gray-500">No communities yet</p>
                 )}
               </div>
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-white rounded-lg shadow-sm">
-              <div className="px-4 py-3 border-b border-gray-200">
+            <div className="bg-white rounded-lg border">
+              <div className="p-4 border-b">
                 <h3 className="font-semibold text-gray-900">Quick Stats</h3>
               </div>
               <div className="p-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Total Projects</span>
-                  <span className="font-medium">{projects.length}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Your College</span>
-                  <span className="font-medium">{user?.college?.name}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Member Since</span>
+                  <span className="text-gray-500">Posts today</span>
                   <span className="font-medium">
-                    {new Date(user?.createdAt).toLocaleDateString()}
+                    {posts.filter(post => {
+                      const today = new Date().toDateString();
+                      const postDate = new Date(post.createdAt).toDateString();
+                      return today === postDate;
+                    }).length}
                   </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Communities</span>
+                  <span className="font-medium">{subgroups.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Total posts</span>
+                  <span className="font-medium">{posts.length}</span>
                 </div>
               </div>
             </div>

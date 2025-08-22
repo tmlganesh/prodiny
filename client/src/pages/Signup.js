@@ -11,8 +11,7 @@ const Signup = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    collegeId: '',
-    role: 'student'
+    collegeId: ''
   });
   const [colleges, setColleges] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
@@ -59,6 +58,8 @@ const Signup = () => {
 
     try {
       const { confirmPassword, ...signupData } = formData;
+      // Set default role to student
+      signupData.role = 'student';
       const result = await signup(signupData);
       
       if (result.success) {
@@ -148,22 +149,6 @@ const Signup = () => {
                     {college.name}
                   </option>
                 ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Role
-              </label>
-              <select
-                id="role"
-                name="role"
-                className="mt-1 block w-full px-3 py-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-reddit-orange focus:border-reddit-orange sm:text-sm"
-                value={formData.role}
-                onChange={handleChange}
-              >
-                <option value="student">Student</option>
-                <option value="faculty">Faculty</option>
               </select>
             </div>
 

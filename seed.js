@@ -28,24 +28,149 @@ const seedData = async () => {
     // Create colleges
     const colleges = await College.create([
       {
-        name: 'MIT',
-        description: 'Massachusetts Institute of Technology - Leading in technology and innovation',
-        domain: 'mit.edu'
+        name: 'RVR & JC College of Engineering',
+        description: 'RVR & JC College of Engineering, Guntur - Excellence in Engineering Education',
+        domain: 'rvrjc.ac.in'
       },
       {
-        name: 'Stanford University',
-        description: 'Stanford University - Excellence in research and education',
-        domain: 'stanford.edu'
+        name: 'KL University',
+        description: 'KL University (Koneru Lakshmaiah Education Foundation), Guntur - Leading University in Engineering and Technology',
+        domain: 'kluniversity.in'
       },
       {
-        name: 'Harvard University',
-        description: 'Harvard University - America\'s oldest institution of higher learning',
-        domain: 'harvard.edu'
+        name: 'Vignan\'s University',
+        description: 'Vignan\'s University (Vignan\'s Foundation for Science, Technology & Research), Guntur - Innovation in Higher Education',
+        domain: 'vignansuniversity.ac.in'
       },
       {
-        name: 'UC Berkeley',
-        description: 'University of California, Berkeley - Premier public research university',
-        domain: 'berkeley.edu'
+        name: 'Vasireddy Venkatadri Institute of Technology',
+        description: 'Vasireddy Venkatadri Institute of Technology (VVIT), Guntur - Quality Technical Education',
+        domain: 'vvit.net'
+      },
+      {
+        name: 'KKR & KSR Institute of Technology & Sciences',
+        description: 'KKR & KSR Institute of Technology & Sciences (KITS), Guntur - Excellence in Engineering',
+        domain: 'kitsguntur.ac.in'
+      },
+      {
+        name: 'Acharya Nagarjuna University College of Engineering',
+        description: 'Acharya Nagarjuna University (ANU) College of Engineering and Technology, Guntur - Premier Engineering Institution',
+        domain: 'anu.ac.in'
+      },
+      {
+        name: 'Bapatla Engineering College',
+        description: 'Bapatla Engineering College, Guntur - Quality Engineering Education',
+        domain: 'bec.edu.in'
+      },
+      {
+        name: 'Narasaraopeta Engineering College',
+        description: 'Narasaraopeta Engineering College, Guntur - Technical Excellence',
+        domain: 'nec.edu.in'
+      },
+      {
+        name: 'NRI Institute of Technology',
+        description: 'NRI Institute of Technology, Guntur - Innovation in Engineering Education',
+        domain: 'nriit.edu.in'
+      },
+      {
+        name: 'Vignan\'s Lara Institute of Technology & Science',
+        description: 'Vignan\'s Lara Institute of Technology & Science, Guntur - Advanced Technical Education',
+        domain: 'vlits.ac.in'
+      },
+      {
+        name: 'Chebrolu Engineering College',
+        description: 'Chebrolu Engineering College, Guntur - Quality Engineering Programs',
+        domain: 'cec.edu.in'
+      },
+      {
+        name: 'Chalapathi Institute of Engineering and Technology',
+        description: 'Chalapathi Institute of Engineering and Technology, Guntur - Technical Innovation',
+        domain: 'ciet.ac.in'
+      },
+      {
+        name: 'KITS-AKSHAR Institute of Technology',
+        description: 'KITS-AKSHAR Institute of Technology (formerly Guntur Engineering College), Guntur - Engineering Excellence',
+        domain: 'kitsakshar.ac.in'
+      },
+      {
+        name: 'Malineni Perumallu Educational Society\'s Group of Institutions',
+        description: 'Malineni Perumallu Educational Society\'s Group of Institutions, Guntur - Comprehensive Technical Education',
+        domain: 'mpes.ac.in'
+      },
+      {
+        name: 'University College of Engineering, Narasaraopet',
+        description: 'University College of Engineering, Narasaraopet, Guntur - Quality Engineering Education',
+        domain: 'ucen.ac.in'
+      },
+      {
+        name: 'Siddhartha Academy of Higher Education',
+        description: 'Siddhartha Academy of Higher Education (formerly Velagapudi Ramakrishna Siddhartha Engineering College), Vijayawada - Premier Engineering Institution',
+        domain: 'sahe.ac.in'
+      },
+      {
+        name: 'Prasad V. Potluri Siddhartha Institute of Technology',
+        description: 'Prasad V. Potluri Siddhartha Institute of Technology (PVPSIT), Vijayawada - Excellence in Technology',
+        domain: 'pvpsit.ac.in'
+      },
+      {
+        name: 'Andhra Loyola Institute of Engineering and Technology',
+        description: 'Andhra Loyola Institute of Engineering and Technology (ALIET), Vijayawada - Quality Technical Education',
+        domain: 'aliet.ac.in'
+      },
+      {
+        name: 'Dhanekula Institute of Engineering Technology',
+        description: 'Dhanekula Institute of Engineering Technology, Vijayawada - Innovation in Engineering',
+        domain: 'diet.ac.in'
+      },
+      {
+        name: 'SRK Institute of Technology',
+        description: 'SRK Institute of Technology, Vijayawada - Technical Excellence',
+        domain: 'srkit.ac.in'
+      },
+      {
+        name: 'Potti Sriramulu Chalavadi Mallikharjuna Rao College of Engineering',
+        description: 'Potti Sriramulu Chalavadi Mallikharjuna Rao College of Engineering and Technology, Vijayawada - Engineering Education',
+        domain: 'pscmr.ac.in'
+      },
+      {
+        name: 'Vijaya Institute of Technology for Women',
+        description: 'Vijaya Institute of Technology for Women, Vijayawada - Empowering Women in Technology',
+        domain: 'vitw.ac.in'
+      },
+      {
+        name: 'Vikas Group of Institutions',
+        description: 'Vikas Group of Institutions, Vijayawada - Comprehensive Technical Education',
+        domain: 'vikas.edu.in'
+      },
+      {
+        name: 'R.K. College of Engineering',
+        description: 'R.K. College of Engineering, Vijayawada - Quality Engineering Programs',
+        domain: 'rkce.ac.in'
+      },
+      {
+        name: 'Lingayas Institute of Management and Technology',
+        description: 'Lingayas Institute of Management and Technology, Vijayawada - Technology and Management Education',
+        domain: 'limt.ac.in'
+      },
+      {
+        name: 'MIC College of Technology',
+        description: 'MIC College of Technology, Vijayawada - Technical Innovation',
+        domain: 'mict.ac.in'
+      },
+      {
+        name: 'Nimra College of Engineering and Technology',
+        description: 'Nimra College of Engineering and Technology, Vijayawada - Engineering Excellence',
+        domain: 'nimra.ac.in'
+      },
+      {
+        name: 'Amrita Sai Institute of Science and Technology',
+        description: 'Amrita Sai Institute of Science and Technology, Vijayawada - Science and Technology Education',
+        domain: 'asist.ac.in'
+      },
+      {
+        name: 'MVR College of Engineering and Technology',
+        description: 'MVR College of Engineering and Technology, Vijayawada - Quality Engineering Education',
+        domain: 'mvrce.ac.in'
       }
     ]);
 
@@ -64,28 +189,28 @@ const seedData = async () => {
     const users = await User.create([
       {
         name: 'John Doe',
-        email: 'john@mit.edu',
+        email: 'john@rvrjc.ac.in',
         password: 'password123',
         role: 'student',
         collegeId: colleges[0]._id
       },
       {
         name: 'Jane Smith',
-        email: 'jane@mit.edu',
+        email: 'jane@rvrjc.ac.in',
         password: 'password123',
         role: 'faculty',
         collegeId: colleges[0]._id
       },
       {
         name: 'Bob Johnson',
-        email: 'bob@stanford.edu',
+        email: 'bob@kluniversity.in',
         password: 'password123',
         role: 'student',
         collegeId: colleges[1]._id
       },
       {
         name: 'Alice Brown',
-        email: 'alice@harvard.edu',
+        email: 'alice@vignansuniversity.ac.in',
         password: 'password123',
         role: 'student',
         collegeId: colleges[2]._id
@@ -236,10 +361,10 @@ const seedData = async () => {
     console.log('Seed data created successfully!');
     console.log('\nSample accounts:');
     console.log('Admin: admin@prodiny.com / admin123');
-    console.log('Student: john@mit.edu / password123');
-    console.log('Faculty: jane@mit.edu / password123');
-    console.log('Student: bob@stanford.edu / password123');
-    console.log('Student: alice@harvard.edu / password123');
+    console.log('Student: john@rvrjc.ac.in / password123');
+    console.log('Faculty: jane@rvrjc.ac.in / password123');
+    console.log('Student: bob@kluniversity.in / password123');
+    console.log('Student: alice@vignansuniversity.ac.in / password123');
 
   } catch (error) {
     console.error('Error seeding data:', error);
