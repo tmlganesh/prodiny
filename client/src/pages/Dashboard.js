@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, User, LogOut, Plus, MessageSquare, Users, Heart } from 'lucide-react';
+import { Search, LogOut, MessageSquare, Users, Heart, Trash2 } from 'lucide-react';
 import api from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -15,8 +15,11 @@ const Dashboard = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
 
   useEffect(() => {
+    console.log('Dashboard mounted, user:', user);
+    console.log('Token:', localStorage.getItem('token'));
     fetchPosts();
     fetchSubgroups();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchPosts = async () => {
@@ -25,6 +28,12 @@ const Dashboard = () => {
       setPosts(response.data.projects || []);
     } catch (error) {
       console.error('Error fetching posts:', error);
+      if (error.response?.status === 401) {
+        toast.error('Please log in to view posts');
+        navigate('/login');
+      } else {
+        toast.error('Failed to load posts');
+      }
     } finally {
       setLoading(false);
     }
@@ -47,18 +56,40 @@ const Dashboard = () => {
     }
 
     try {
-      await api.post('/projects', {
+      console.log('Creating post with data:', {
         title: newPost.title,
         description: newPost.content,
-        status: 'active',
+        status: 'open',
         tags: []
       });
+      
+      const response = await api.post('/projects', {
+        title: newPost.title,
+        description: newPost.content,
+        status: 'open',
+        tags: []
+      });
+      
+      console.log('Post created successfully:', response.data);
       toast.success('Post created successfully!');
       setNewPost({ title: '', content: '' });
       setShowCreatePost(false);
       fetchPosts();
     } catch (error) {
-      toast.error('Failed to create post');
+      console.error('Error creating post:', error);
+      console.error('Error response:', error.response?.data);
+      
+      if (error.response?.status === 401) {
+        toast.error('Please log in to create posts');
+        navigate('/login');
+      } else if (error.response?.status === 400) {
+        const errorMsg = error.response.data?.errors?.[0]?.msg || 
+                        error.response.data?.message || 
+                        'Validation error';
+        toast.error(errorMsg);
+      } else {
+        toast.error('Failed to create post');
+      }
     }
   };
 
@@ -75,6 +106,28 @@ const Dashboard = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('Are you sure you want to delete this post?')) {
+      return;
+    }
+
+    try {
+      await api.delete(`/projects/${postId}`);
+      toast.success('Post deleted successfully!');
+      fetchPosts(); // Refresh the posts list
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      if (error.response?.status === 401) {
+        toast.error('Please log in to delete posts');
+        navigate('/login');
+      } else if (error.response?.status === 403) {
+        toast.error('You can only delete your own posts');
+      } else {
+        toast.error('Failed to delete post');
+      }
+    }
   };
 
   if (loading) {
@@ -198,53 +251,70 @@ const Dashboard = () => {
                   <p className="text-gray-500 mt-2">Be the first to create a post!</p>
                 </div>
               ) : (
-                posts.map((post) => (
-                  <div key={post._id} className="bg-white rounded-lg border">
-                    <div className="p-6">
-                      <div className="flex items-center space-x-2 text-sm text-gray-500 mb-3">
-                        <span className="font-medium">r/{post.collegeId?.name || 'college'}</span>
-                        <span>•</span>
-                        <span>Posted by u/{post.ownerId?.name || 'user'}</span>
-                        <span>•</span>
-                        <span>{formatTimeAgo(post.createdAt)}</span>
-                      </div>
-                      
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h3>
-                      <p className="text-gray-700 mb-4">{post.description}</p>
-                      
-                      {post.tags && post.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {post.tags.map((tag, index) => (
-                            <span
-                              key={index}
-                              className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
-                            >
-                              {tag}
-                            </span>
-                          ))}
+                posts.map((post) => {
+                  console.log('Post owner ID:', post.ownerId?._id, 'Current user ID:', user?.id);
+                  return (
+                    <div key={post._id} className="bg-white rounded-lg border">
+                      <div className="p-6">
+                        <div className="flex items-center space-x-2 text-sm text-gray-500 mb-3">
+                          <span className="font-medium">r/{post.collegeId?.name || 'college'}</span>
+                          <span>•</span>
+                          <span>Posted by u/{post.ownerId?.name || 'user'}</span>
+                          <span>•</span>
+                          <span>{formatTimeAgo(post.createdAt)}</span>
                         </div>
-                      )}
-                      
-                      <div className="flex items-center space-x-6 text-gray-500">
-                        <button className="flex items-center space-x-1 hover:text-gray-700">
-                          <Heart className="h-4 w-4" />
-                          <span className="text-sm">Like</span>
-                        </button>
-                        <button className="flex items-center space-x-1 hover:text-gray-700">
-                          <MessageSquare className="h-4 w-4" />
-                          <span className="text-sm">Comment</span>
-                        </button>
-                        <button className="flex items-center space-x-1 hover:text-gray-700">
-                          <Users className="h-4 w-4" />
-                          <span className="text-sm">Join ({post.members?.length || 0})</span>
-                        </button>
-                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                          {post.status}
-                        </span>
+                        
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h3>
+                        <p className="text-gray-700 mb-4">{post.description}</p>
+                        
+                        {post.tags && post.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {post.tags.map((tag, index) => (
+                              <span
+                                key={index}
+                                className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-6 text-gray-500">
+                            <button className="flex items-center space-x-1 hover:text-gray-700">
+                              <Heart className="h-4 w-4" />
+                              <span className="text-sm">Like</span>
+                            </button>
+                            <button className="flex items-center space-x-1 hover:text-gray-700">
+                              <MessageSquare className="h-4 w-4" />
+                              <span className="text-sm">Comment</span>
+                            </button>
+                            <button className="flex items-center space-x-1 hover:text-gray-700">
+                              <Users className="h-4 w-4" />
+                              <span className="text-sm">Join ({post.members?.length || 0})</span>
+                            </button>
+                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                              {post.status}
+                            </span>
+                          </div>
+                          
+                          {/* Delete button - only show for posts owned by current user */}
+                          {user && post.ownerId?._id === user.id && (
+                            <button
+                              onClick={() => handleDeletePost(post._id)}
+                              className="flex items-center space-x-1 text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                              title="Delete post"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="text-sm">Delete</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

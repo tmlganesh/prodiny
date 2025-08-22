@@ -39,7 +39,7 @@ const AppContent = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router future={{ v7_relativeSplatPath: true }}>
         <AppContent />
         <Toaster 
           position="top-right"

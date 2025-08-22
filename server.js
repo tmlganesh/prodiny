@@ -24,6 +24,11 @@ app.use('/api/colleges', collegeRoutes);
 app.use('/api/subgroups', subgroupRoutes);
 app.use('/api/users', userRoutes);
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ message: 'Server is running', timestamp: new Date().toISOString() });
+});
+
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
