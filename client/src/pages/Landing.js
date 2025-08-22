@@ -12,7 +12,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Connect. Collaborate. <span className="text-reddit-orange">Create.</span>
+              Connect. Collaborate. <span className="text-white">Create.</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
               Join the ultimate platform for college students to discover projects, connect with peers, and build amazing things together.
@@ -20,14 +20,14 @@ const Landing = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 to="/signup"
-                className="px-8 py-4 bg-reddit-orange text-white font-semibold rounded-full hover:bg-orange-600 transition-colors flex items-center space-x-2"
+                className="px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-gray-200 transition-colors flex items-center space-x-2"
               >
                 <span>Get Started</span>
                 <ArrowRight size={20} />
               </Link>
               <Link
                 to="/login"
-                className="px-8 py-4 border-2 border-reddit-blue text-reddit-blue font-semibold rounded-full hover:bg-reddit-blue hover:text-white transition-colors"
+                className="px-8 py-4 border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-black transition-colors"
               >
                 Sign In
               </Link>

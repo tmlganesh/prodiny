@@ -3,6 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter } from 'components/ui/card';
+import Button from 'components/ui/button';
+import { Input } from 'components/ui/input';
+import { Label } from 'components/ui/label';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -36,92 +40,45 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-reddit-lightgray flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Brand / Visual Panel */}
-        <div className="hidden md:flex flex-col justify-center rounded-2xl p-8 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 text-white shadow-lg">
-          <div className="mb-6">
-            <div className="h-12 w-12 bg-white/10 rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold">P</span>
-            </div>
-          </div>
-          <h3 className="text-3xl font-extrabold leading-tight">Prodiny for Students</h3>
-          <p className="mt-4 text-gray-200 max-w-lg">Join project teams, showcase your work, and collaborate across colleges. Secure, reliable, and built for learning.</p>
-          <ul className="mt-6 space-y-3 text-gray-200">
-            <li className="flex items-start gap-3"><span className="font-semibold">•</span> Curated projects and mentorship</li>
-            <li className="flex items-start gap-3"><span className="font-semibold">•</span> Secure collaboration tools</li>
-            <li className="flex items-start gap-3"><span className="font-semibold">•</span> Certificates & portfolios</li>
-          </ul>
-        </div>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+  <Card className="w-full border border-gray-800 bg-gradient-to-b from-gray-950 to-black/80 shadow-2xl">
+          <CardHeader className="border-b border-gray-800 pb-4 mb-2">
+            <CardTitle>Login to your account</CardTitle>
+            <CardDescription>Enter your email and password to sign in</CardDescription>
+            <CardAction>
+              <Link to="/signup"><Button variant="link">Create account</Button></Link>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit}>
+              <div className="flex flex-col gap-6">
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" name="email" type="email" placeholder="m@example.com" required value={formData.email} onChange={handleChange} />
+                </div>
 
-        {/* Form Panel */}
-        <div className="flex items-center justify-center">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-            <div className="mb-6 text-center">
-              <div className="mx-auto h-12 w-12 bg-reddit-orange rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">P</span>
-              </div>
-              <h2 className="mt-4 text-2xl font-semibold text-gray-900">Sign in</h2>
-              <p className="mt-2 text-sm text-gray-600">Access your student workspace</p>
-            </div>
-
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 border border-gray-200 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-reddit-blue"
-                  placeholder="you@college.edu"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                <div className="relative mt-2">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="block w-full px-4 py-3 border border-gray-200 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-reddit-blue pr-10"
-                    placeholder="Enter your password"
-                  />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label="Toggle password visibility" className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500">
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                <div className="grid gap-2">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Password</Label>
+                    <Link to="/forgot" className="ml-auto text-sm text-gray-400 hover:text-white transition-colors">Forgot your password?</Link>
+                  </div>
+                  <div className="relative">
+                    <Input id="password" name="password" type={showPassword ? 'text' : 'password'} required value={formData.password} onChange={handleChange} />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label="Toggle password visibility" className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition-colors">
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  <span className="text-xs text-gray-400 mt-1">Password is case sensitive.</span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <input id="remember_me" name="remember_me" type="checkbox" className="h-4 w-4 text-reddit-blue focus:ring-reddit-blue border-gray-300 rounded" />
-                  <label htmlFor="remember_me" className="text-sm text-gray-600">Remember me</label>
-                </div>
-                <div className="text-sm">
-                  <Link to="/forgot" className="font-medium text-reddit-blue hover:underline">Forgot password?</Link>
-                </div>
-              </div>
-
-              <div>
-                <button type="submit" disabled={loading} className="w-full flex justify-center items-center px-4 py-3 bg-reddit-blue text-white font-semibold rounded-lg hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-reddit-blue">
-                  {loading ? 'Signing in...' : 'Sign in'}
-                </button>
-              </div>
+              <CardFooter className="flex-col gap-2 mt-6">
+                <Button type="submit" className="w-full" variant="primary" disabled={loading}>{loading ? 'Signing in...' : 'Login'}</Button>
+              </CardFooter>
             </form>
-
-            <div className="mt-6 text-center text-sm text-gray-600">
-              Don't have an account? <Link to="/signup" className="text-reddit-blue font-medium hover:underline">Create one</Link>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

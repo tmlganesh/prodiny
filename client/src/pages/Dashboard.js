@@ -4,6 +4,14 @@ import api from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { Button } from '../components/ui/button';
+import Avatar from '../components/ui/avatar';
+import { Badge } from '../components/ui/badge';
+import { Spinner } from '../components/ui/spinner';
+import { Tag } from '../components/ui/tag';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../components/ui/card';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -15,8 +23,6 @@ const Dashboard = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
 
   useEffect(() => {
-    console.log('Dashboard mounted, user:', user);
-    console.log('Token:', localStorage.getItem('token'));
     fetchPosts();
     fetchSubgroups();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,12 +62,6 @@ const Dashboard = () => {
     }
 
     try {
-      console.log('Creating post with data:', {
-        title: newPost.title,
-        description: newPost.content,
-        status: 'open',
-        tags: []
-      });
       
       const response = await api.post('/projects', {
         title: newPost.title,
@@ -70,7 +70,7 @@ const Dashboard = () => {
         tags: []
       });
       
-      console.log('Post created successfully:', response.data);
+      
       toast.success('Post created successfully!');
       setNewPost({ title: '', content: '' });
       setShowCreatePost(false);
@@ -132,23 +132,23 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-reddit-orange border-r-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <Spinner className="mx-auto mb-4 border-white/20 border-t-white" />
+          <p className="text-white">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+  <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-gradient-to-b from-gray-950 to-black/80 backdrop-blur-md">
         <div className="container mx-auto flex h-16 max-w-7xl items-center px-4">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 bg-reddit-orange rounded-full flex items-center justify-center">
+            <div className="h-8 w-8 bg-white/10 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-sm">P</span>
             </div>
             <span className="font-bold text-xl">Prodiny</span>
@@ -156,12 +156,12 @@ const Dashboard = () => {
           
           {/* Search */}
           <div className="flex flex-1 items-center justify-center px-6">
-            <div className="relative w-full max-w-md">
+              <div className="relative w-full max-w-md">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <input
+              <Input
                 type="search"
                 placeholder="Search posts, communities..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reddit-orange focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 bg-black text-white border-gray-700"
               />
             </div>
           </div>
@@ -169,19 +169,12 @@ const Dashboard = () => {
           {/* User Menu */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <span className="text-gray-600 font-medium text-sm">
-                  {user?.name?.charAt(0) || 'U'}
-                </span>
-              </div>
+              <Avatar name={user?.name} size={32} className="bg-white/10" />
               <span className="text-sm font-medium hidden md:block">{user?.name}</span>
             </div>
-            <button
-              onClick={handleLogout}
-              className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100"
-            >
+            <Button onClick={handleLogout} variant="outline" className="p-2 text-gray-300 rounded-lg border-white/10 bg-transparent">
               <LogOut className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         </div>
       </header>
@@ -192,127 +185,103 @@ const Dashboard = () => {
           {/* Main Feed - 3 columns */}
           <div className="lg:col-span-3 space-y-6">
             {/* Create Post */}
-            <div className="bg-white rounded-lg border p-6">
+            <Card className="border border-gray-800">
               {!showCreatePost ? (
-                <button
-                  onClick={() => setShowCreatePost(true)}
-                  className="w-full flex items-center space-x-3 p-3 text-left text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
-                    <span className="text-gray-600 font-medium text-sm">
-                      {user?.name?.charAt(0) || 'U'}
-                    </span>
-                  </div>
-                  <span>What's on your mind?</span>
-                </button>
-              ) : (
-                <form onSubmit={handleCreatePost} className="space-y-4">
-                  <input
+                <Button onClick={() => setShowCreatePost(true)} variant="outline" className="w-full flex items-center space-x-3 p-3 text-left text-gray-200 bg-transparent border-white/10">
+                  <Avatar name={user?.name} size={32} className="bg-white/10" />
+                  <span className="text-gray-200">What's on your mind?</span>
+                </Button>
+                ) : (
+                <form onSubmit={handleCreatePost} className="space-y-4 p-4">
+                  <Input
                     type="text"
                     placeholder="Post title..."
                     value={newPost.title}
                     onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reddit-orange"
+                    className="w-full bg-black text-white border-gray-700"
                   />
-                  <textarea
+                  <Textarea
                     placeholder="What's happening in your project?"
                     value={newPost.content}
                     onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
                     rows={4}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reddit-orange resize-none"
+                    className="w-full resize-none bg-white/5 text-white border-gray-700"
                   />
                   <div className="flex justify-end space-x-2">
-                    <button
+                    <Button
                       type="button"
                       onClick={() => {
                         setShowCreatePost(false);
                         setNewPost({ title: '', content: '' });
                       }}
-                      className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                      variant="outline"
+                      className="px-4 py-2 text-gray-200 border-white/10"
                     >
                       Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-6 py-2 bg-reddit-orange text-white rounded-lg hover:bg-orange-600 font-medium"
-                    >
-                      Post
-                    </button>
+                    </Button>
+                    <Button type="submit" className="px-6 py-2 bg-white text-black" variant="primary">Post</Button>
                   </div>
                 </form>
-              )}
-            </div>
+                )}
+            </Card>
 
             {/* Posts Feed */}
             <div className="space-y-4">
               {posts.length === 0 ? (
-                <div className="bg-white rounded-lg border p-12 text-center">
-                  <h3 className="text-lg font-semibold text-gray-900">No posts yet</h3>
-                  <p className="text-gray-500 mt-2">Be the first to create a post!</p>
-                </div>
+                <Card className="border border-gray-800 p-8 text-center">
+                  <h3 className="text-lg font-semibold text-white">No posts yet</h3>
+                  <p className="text-gray-400 mt-2">Be the first to create a post!</p>
+                </Card>
               ) : (
                 posts.map((post) => {
-                  console.log('Post owner ID:', post.ownerId?._id, 'Current user ID:', user?.id);
                   return (
-                    <div key={post._id} className="bg-white rounded-lg border">
+                    <Card key={post._id} className="border border-gray-800">
                       <div className="p-6">
-                        <div className="flex items-center space-x-2 text-sm text-gray-500 mb-3">
-                          <span className="font-medium">r/{post.collegeId?.name || 'college'}</span>
+                        <div className="flex items-center space-x-2 text-sm text-gray-400 mb-3">
+                          <span className="font-medium">r/{post.collegeId?.name || 'Unknown'}</span>
                           <span>•</span>
-                          <span>Posted by u/{post.ownerId?.name || 'user'}</span>
+                          <span>Posted by u/{post.ownerId?.name || 'Unknown'}</span>
                           <span>•</span>
                           <span>{formatTimeAgo(post.createdAt)}</span>
                         </div>
                         
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h3>
-                        <p className="text-gray-700 mb-4">{post.description}</p>
+                        <h3 className="text-lg font-semibold text-white mb-2">{post.title}</h3>
+                        <p className="text-gray-300 mb-4">{post.description}</p>
                         
                         {post.tags && post.tags.length > 0 && (
                           <div className="flex flex-wrap gap-2 mb-4">
                             {post.tags.map((tag, index) => (
-                              <span
-                                key={index}
-                                className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
-                              >
-                                {tag}
-                              </span>
+                              <Tag key={index}>{tag}</Tag>
                             ))}
                           </div>
                         )}
                         
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-6 text-gray-500">
-                            <button className="flex items-center space-x-1 hover:text-gray-700">
+                          <div className="flex items-center space-x-4 text-gray-300">
+                            <Button variant="outline" className="flex items-center gap-1 text-sm text-gray-300 border-white/10">
                               <Heart className="h-4 w-4" />
-                              <span className="text-sm">Like</span>
-                            </button>
-                            <button className="flex items-center space-x-1 hover:text-gray-700">
+                              <span>Like</span>
+                            </Button>
+                            <Button variant="outline" className="flex items-center gap-1 text-sm text-gray-300 border-white/10">
                               <MessageSquare className="h-4 w-4" />
-                              <span className="text-sm">Comment</span>
-                            </button>
-                            <button className="flex items-center space-x-1 hover:text-gray-700">
+                              <span>Comment</span>
+                            </Button>
+                            <Button variant="outline" className="flex items-center gap-1 text-sm text-gray-300 border-white/10">
                               <Users className="h-4 w-4" />
-                              <span className="text-sm">Join ({post.members?.length || 0})</span>
-                            </button>
-                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                              {post.status}
-                            </span>
+                              <span>Join ({post.members?.length || 0})</span>
+                            </Button>
+                            <Badge color="green">{post.status}</Badge>
                           </div>
                           
-                          {/* Delete button - only show for posts owned by current user */}
                           {user && post.ownerId?._id === user.id && (
-                            <button
-                              onClick={() => handleDeletePost(post._id)}
-                              className="flex items-center space-x-1 text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                              title="Delete post"
-                            >
+                            <Button onClick={() => handleDeletePost(post._id)} variant="outline" className="flex items-center gap-1 text-sm text-gray-300 border-white/10">
                               <Trash2 className="h-4 w-4" />
-                              <span className="text-sm">Delete</span>
-                            </button>
+                              <span>Delete</span>
+                            </Button>
                           )}
                         </div>
                       </div>
-                    </div>
+                    </Card>
                   );
                 })
               )}
@@ -322,53 +291,50 @@ const Dashboard = () => {
           {/* Right Sidebar - 1 column */}
           <div className="space-y-6">
             {/* User Profile Card */}
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="h-12 w-12 bg-gray-300 rounded-full flex items-center justify-center">
-                  <span className="text-gray-600 font-medium text-lg">
-                    {user?.name?.charAt(0) || 'U'}
-                  </span>
-                </div>
+            <Card className="border border-gray-800 p-4">
+              <div className="flex items-center space-x-3 mb-2">
+                <Avatar name={user?.name} size={48} className="bg-white/10" />
                 <div>
-                  <h3 className="font-semibold text-gray-900">{user?.name}</h3>
-                  <p className="text-sm text-gray-500">{user?.collegeId?.name || 'College Student'}</p>
+                  <h3 className="font-semibold text-white">{user?.name}</h3>
+                  <p className="text-sm text-gray-400">{user?.collegeId?.name || 'College Student'}</p>
                 </div>
               </div>
-            </div>
+              <div className="mt-2">
+                <Button as="a" href="/profile" variant="outline" className="w-full text-gray-200 border-white/10">View Profile</Button>
+              </div>
+            </Card>
 
             {/* Popular Communities */}
-            <div className="bg-white rounded-lg border">
-              <div className="p-4 border-b">
-                <h3 className="font-semibold text-gray-900">Popular Communities</h3>
+            <Card className="border border-gray-800">
+              <div className="p-4 border-b border-white/5">
+                <h3 className="font-semibold text-white">Popular Communities</h3>
               </div>
               <div className="p-4 space-y-3">
                 {subgroups.slice(0, 5).map((subgroup) => (
                   <div key={subgroup._id} className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{subgroup.name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm font-medium text-white">{subgroup.name}</p>
+                      <p className="text-xs text-gray-400">
                         {subgroup.members?.length || 0} members
                       </p>
                     </div>
-                    <button className="px-3 py-1 text-xs bg-reddit-orange text-white rounded-full hover:bg-orange-600">
-                      Join
-                    </button>
+                    <Button variant="primary" className="px-3 py-1 text-xs">Join</Button>
                   </div>
                 ))}
                 {subgroups.length === 0 && (
-                  <p className="text-sm text-gray-500">No communities yet</p>
+                  <p className="text-sm text-gray-400">No communities yet</p>
                 )}
               </div>
-            </div>
+            </Card>
 
             {/* Quick Stats */}
-            <div className="bg-white rounded-lg border">
-              <div className="p-4 border-b">
-                <h3 className="font-semibold text-gray-900">Quick Stats</h3>
+            <Card className="border border-gray-800">
+              <div className="p-4 border-b border-white/5">
+                <h3 className="font-semibold text-white">Quick Stats</h3>
               </div>
-              <div className="p-4 space-y-2">
+              <div className="p-4 space-y-2 text-gray-300">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Posts today</span>
+                  <span className="text-gray-400">Posts today</span>
                   <span className="font-medium">
                     {posts.filter(post => {
                       const today = new Date().toDateString();
@@ -378,15 +344,15 @@ const Dashboard = () => {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Communities</span>
+                  <span className="text-gray-400">Communities</span>
                   <span className="font-medium">{subgroups.length}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Total posts</span>
+                  <span className="text-gray-400">Total posts</span>
                   <span className="font-medium">{posts.length}</span>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       </div>

@@ -30,7 +30,13 @@ app.get('/api/health', (req, res) => {
 });
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
+const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/prodiny';
+if (!process.env.MONGODB_URI) {
+  console.warn('Warning: MONGODB_URI is not set. Falling back to local MongoDB at', mongoUri);
+  console.warn('To use a remote database, create a .env file at the project root with MONGODB_URI=<your-uri>');
+}
+
+mongoose.connect(mongoUri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
