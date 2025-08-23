@@ -40,10 +40,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white text-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
-  <Card className="w-full border border-gray-800 bg-gradient-to-b from-gray-950 to-black/80 shadow-2xl">
-          <CardHeader className="border-b border-gray-800 pb-4 mb-2">
+  <Card className="w-full border border-gray-200 bg-white shadow-2xl">
+          <CardHeader className="border-b border-gray-200 pb-4 mb-2">
             <CardTitle>Login to your account</CardTitle>
             <CardDescription>Enter your email and password to sign in</CardDescription>
             <CardAction>
@@ -61,15 +61,15 @@ const Login = () => {
                 <div className="grid gap-2">
                   <div className="flex items-center">
                     <Label htmlFor="password">Password</Label>
-                    <Link to="/forgot" className="ml-auto text-sm text-gray-400 hover:text-white transition-colors">Forgot your password?</Link>
+                    <Link to="/forgot" className="ml-auto text-sm text-gray-600 hover:text-black transition-colors">Forgot your password?</Link>
                   </div>
                   <div className="relative">
                     <Input id="password" name="password" type={showPassword ? 'text' : 'password'} required value={formData.password} onChange={handleChange} />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label="Toggle password visibility" className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition-colors">
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label="Toggle password visibility" className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-black transition-colors">
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
-                  <span className="text-xs text-gray-400 mt-1">Password is case sensitive.</span>
+                  <span className="text-xs text-gray-600 mt-1">Password is case sensitive.</span>
                 </div>
               </div>
 

@@ -32,7 +32,7 @@ const Sidebar = ({ activeSection, onSectionChange, className }) => {
 
   const fetchColleges = async () => {
     try {
-      const response = await api.get('/colleges?limit=10');
+      const response = await api.get('/colleges');
       setColleges(response.data.colleges || []);
     } catch (error) {
       console.error('Error fetching colleges:', error);

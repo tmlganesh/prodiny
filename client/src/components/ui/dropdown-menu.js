@@ -18,7 +18,7 @@ const DropdownMenuContent = ({ children, isOpen, className }) => {
   
   return (
     <div className={cn(
-      "absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50",
+      "absolute right-0 mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black z-50",
       className
     )}>
       <div className="py-1" role="menu">
@@ -33,7 +33,7 @@ const DropdownMenuItem = ({ children, onClick, className }) => {
     <button
       onClick={onClick}
       className={cn(
-        "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+        "block w-full text-left px-4 py-2 text-sm text-black hover:bg-white hover:text-black rounded-lg",
         className
       )}
       role="menuitem"

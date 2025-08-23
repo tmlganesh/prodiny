@@ -10,9 +10,7 @@ const router = express.Router();
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const { search, page = 1, limit = 10 } = req.query;
-    const skip = (page - 1) * limit;
-
+    const { search, page = 1, limit } = req.query;
     let filter = {};
     if (search) {
       filter = {
@@ -24,19 +22,24 @@ router.get('/', async (req, res) => {
       };
     }
 
-    const colleges = await College.find(filter)
+    let query = College.find(filter)
       .populate('subgroups', 'name description')
       .populate('projects', 'title status createdAt')
-      .skip(skip)
-      .limit(parseInt(limit))
       .sort({ name: 1 });
 
+    // Only apply skip/limit if limit is provided
+    if (limit) {
+      const skip = (page - 1) * parseInt(limit);
+      query = query.skip(skip).limit(parseInt(limit));
+    }
+
+    const colleges = await query;
     const total = await College.countDocuments(filter);
 
     res.json({
       colleges,
       currentPage: parseInt(page),
-      totalPages: Math.ceil(total / limit),
+      totalPages: limit ? Math.ceil(total / parseInt(limit)) : 1,
       totalColleges: total
     });
   } catch (error) {

@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ArrowUp, 
-  ArrowDown, 
-  MessageSquare, 
-  Share, 
-  Bookmark, 
+import {
+  ArrowUp,
+  ArrowDown,
+  MessageSquare,
+  Share,
+  Bookmark,
   MoreHorizontal,
   Search,
   Bell,
-  TrendingUp,
-  Star,
-  Award,
-  Eye,
   ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../utils/api';
 import { cn } from '../utils/cn';
+
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
+
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../components/ui/dropdown-menu';
 import Avatar from '../components/ui/avatar';
+
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -50,7 +48,7 @@ const Dashboard = () => {
         ...project,
         upvotes: project.upvotes || Math.floor(Math.random() * 1000),
         comments: project.comments || Math.floor(Math.random() * 50),
-        subreddit: project.collegeId?.name || 'engineering'
+        // ...existing code...
       })));
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -64,7 +62,7 @@ const Dashboard = () => {
   const fetchColleges = async () => {
     try {
       const response = await api.get('/colleges');
-      setColleges(response.data || []);
+      setColleges(response.data.colleges || []);
     } catch (error) {
       console.error('Error fetching colleges:', error);
     }
@@ -126,7 +124,7 @@ const Dashboard = () => {
     const now = new Date();
     const date = new Date(dateString);
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) return 'now';
     if (diffInHours < 24) return `${diffInHours}h`;
     const diffInDays = Math.floor(diffInHours / 24);
@@ -143,325 +141,313 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-lg text-gray-700">Loading...</span>
+          <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-lg text-black">Loading...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header - Reddit Style */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-300 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-12">
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">P</span>
+    <div className="min-h-screen bg-white">
+      <div className="relative z-10 min-h-screen">
+        {/* Header */}
+        <header className="sticky top-0 z-50 bg-white border-b border-black shadow-sm">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex items-center justify-between h-14">
+              {/* Logo */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">P</span>
+                </div>
+                <span className="font-bold text-lg sm:text-xl text-black tracking-wide">prodiny</span>
               </div>
-              <span className="font-bold text-xl text-gray-900">prodiny</span>
-            </div>
-
-            {/* Search */}
-            <div className="flex-1 max-w-lg mx-8">
-              <div className="relative">
-                <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <Input
-                  placeholder="Search Prodiny"
-                  className="w-full pl-10 pr-4 py-2 bg-gray-100 border-gray-300 rounded-full focus:bg-white focus:border-blue-500"
-                />
+              {/* Search */}
+              <div className="hidden sm:flex flex-1 max-w-lg mx-4 lg:mx-8">
+                <div className="relative w-full">
+                  <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" />
+                  <Input
+                    placeholder="Search Prodiny"
+                    className="w-full pl-10 pr-4 py-2 bg-white border-black rounded-full focus:bg-white focus:border-black text-black placeholder-black"
+                  />
+                </div>
               </div>
-            </div>
-
-            {/* User Actions */}
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="p-2">
-                <Bell size={20} className="text-gray-500" />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-                  <div className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100">
-                    <Avatar name={user?.name} size={24} className="bg-orange-500" />
-                    <ChevronDown size={16} className="text-gray-500" />
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent isOpen={isDropdownOpen}>
-                  <DropdownMenuItem onClick={logout}>
-                    Log Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* User Actions */}
+              <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                <Button variant="ghost" size="sm" className="p-2 hover:bg-white rounded-lg">
+                  <Bell size={18} className="text-black" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                    <div className="flex items-center gap-1 sm:gap-2 p-1 rounded-lg hover:bg-white">
+                      <Avatar name={user?.name} size={24} className="bg-orange-500" />
+                      <ChevronDown size={14} className="text-black hidden sm:block" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent isOpen={isDropdownOpen}>
+                    <DropdownMenuItem onClick={logout}>
+                      Log Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="grid grid-cols-12 gap-4">
-          {/* Main Content */}
-          <div className="col-span-12 lg:col-span-8">
-            {/* Tabs */}
-            <div className="bg-white rounded-lg border border-gray-300 mb-4">
-              <Tabs className="w-full">
-                <TabsList className="grid w-full grid-cols-4 bg-transparent border-b border-gray-200 rounded-none p-0">
-                  <TabsTrigger 
-                    value="best" 
-                    isActive={activeTab === 'best'} 
-                    onClick={setActiveTab}
-                    className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
+        </header>
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Main Content */}
+            <div className="flex-1 lg:flex-[2] min-w-0">
+              {/* Tabs */}
+              <div className="bg-white rounded-2xl border border-black mb-6 shadow-lg">
+                <div className="grid w-full grid-cols-4">
+                  <button
+                    onClick={() => setActiveTab('best')}
+                    className={`flex items-center justify-center py-4 px-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'best'
+                        ? 'border-orange-500 text-black'
+                        : 'border-transparent text-black hover:text-orange-500'
+                      }`}
                   >
-                    <Award size={16} />
                     Best
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="hot" 
-                    isActive={activeTab === 'hot'} 
-                    onClick={setActiveTab}
-                    className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('hot')}
+                    className={`flex items-center justify-center py-4 px-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'hot'
+                        ? 'border-orange-500 text-black'
+                        : 'border-transparent text-black hover:text-orange-500'
+                      }`}
                   >
-                    <TrendingUp size={16} />
                     Hot
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="new" 
-                    isActive={activeTab === 'new'} 
-                    onClick={setActiveTab}
-                    className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('new')}
+                    className={`flex items-center justify-center py-4 px-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'new'
+                        ? 'border-orange-500 text-black'
+                        : 'border-transparent text-black hover:text-orange-500'
+                      }`}
                   >
-                    <Star size={16} />
                     New
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="top" 
-                    isActive={activeTab === 'top'} 
-                    onClick={setActiveTab}
-                    className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('top')}
+                    className={`flex items-center justify-center py-4 px-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'top'
+                        ? 'border-orange-500 text-black'
+                        : 'border-transparent text-black hover:text-orange-500'
+                      }`}
                   >
-                    <Eye size={16} />
                     Top
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-
-            {/* Create Post */}
-            {!showCreatePost ? (
-              <Card className="p-3 mb-4 bg-white border border-gray-300">
-                <div className="flex items-center gap-3">
-                  <Avatar name={user?.name} size={32} className="bg-orange-500" />
-                  <Button
-                    onClick={() => setShowCreatePost(true)}
-                    variant="outline"
-                    className="flex-1 text-left justify-start bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-500"
-                  >
-                    Create Project
-                  </Button>
+                  </button>
                 </div>
-              </Card>
-            ) : (
-              <Card className="p-4 mb-4 bg-white border border-gray-300">
-                <form onSubmit={handleCreatePost} className="space-y-3">
-                  <Input
-                    value={newPost.title}
-                    onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                    placeholder="Title"
-                    className="border-gray-300"
-                  />
-                  <textarea
-                    value={newPost.content}
-                    onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-                    placeholder="Text (optional)"
-                    rows={4}
-                    className="w-full p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <div className="flex gap-2 justify-end">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => setShowCreatePost(false)}
-                      className="border-gray-300"
+              </div>
+              {/* Create Post */}
+              {!showCreatePost ? (
+                <Card className="p-3 sm:p-4 mb-6">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <Avatar name={user?.name} size={32} className="bg-orange-500 flex-shrink-0" />
+                    <Button
+                      onClick={() => setShowCreatePost(true)}
+                      variant="outline"
+                      className="flex-1 text-left justify-start min-w-0"
                     >
-                      Cancel
-                    </Button>
-                    <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white">
-                      Post
+                      <span className="truncate">Create Project</span>
                     </Button>
                   </div>
-                </form>
-              </Card>
-            )}
-
-            {/* Posts */}
-            <div className="space-y-2">
-              {projects.length === 0 ? (
-                <Card className="p-8 text-center bg-white border border-gray-300">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No projects yet</h3>
-                  <p className="text-gray-600 mb-4">Be the first to create a project!</p>
-                  <Button 
-                    onClick={() => setShowCreatePost(true)}
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
-                  >
-                    Create Project
-                  </Button>
                 </Card>
               ) : (
-                projects.map((project) => (
-                  <Card key={project._id} className="bg-white border border-gray-300 hover:border-gray-400 transition-colors">
-                    <div className="flex">
-                      {/* Vote Buttons */}
-                      <div className="flex flex-col items-center p-2 bg-gray-50 border-r border-gray-200">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleVote(project._id, 'up')}
-                          className={cn(
-                            "p-1 hover:bg-orange-100",
-                            upvotedPosts.has(project._id) ? "text-orange-500" : "text-gray-400"
-                          )}
-                        >
-                          <ArrowUp size={20} />
-                        </Button>
-                        <span className={cn(
-                          "text-sm font-bold py-1",
-                          upvotedPosts.has(project._id) ? "text-orange-500" : 
-                          downvotedPosts.has(project._id) ? "text-blue-500" : "text-gray-700"
-                        )}>
-                          {getVoteCount(project)}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleVote(project._id, 'down')}
-                          className={cn(
-                            "p-1 hover:bg-blue-100",
-                            downvotedPosts.has(project._id) ? "text-blue-500" : "text-gray-400"
-                          )}
-                        >
-                          <ArrowDown size={20} />
-                        </Button>
-                      </div>
-
-                      {/* Post Content */}
-                      <div className="flex-1 p-3">
-                        {/* Post Header */}
-                        <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                          <span className="font-bold hover:underline cursor-pointer">
-                            r/{project.subreddit}
-                          </span>
-                          <span>•</span>
-                          <span>Posted by u/{project.createdBy?.name || project.ownerId?.name || 'anonymous'}</span>
-                          <span>•</span>
-                          <span>{formatTimeAgo(project.createdAt)}</span>
-                        </div>
-
-                        {/* Title */}
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600 cursor-pointer">
-                          {project.title}
-                        </h3>
-
-                        {/* Content */}
-                        <p className="text-gray-700 text-sm mb-3 line-clamp-3">
-                          {project.description}
-                        </p>
-
-                        {/* Status Badge */}
-                        {project.status && (
-                          <Badge 
-                            variant={project.status === 'open' ? 'default' : 'secondary'}
-                            className="mb-3"
-                          >
-                            {project.status}
-                          </Badge>
-                        )}
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-4 text-gray-500">
-                          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-gray-100">
-                            <MessageSquare size={16} />
-                            {project.comments} Comments
-                          </Button>
-                          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-gray-100">
-                            <Share size={16} />
-                            Share
-                          </Button>
-                          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-gray-100">
-                            <Bookmark size={16} />
-                            Save
-                          </Button>
-                          <Button variant="ghost" size="sm" className="p-1 hover:bg-gray-100">
-                            <MoreHorizontal size={16} />
-                          </Button>
-                        </div>
-                      </div>
+                <Card className="p-4 sm:p-6 mb-6">
+                  <form onSubmit={handleCreatePost} className="space-y-3">
+                    <Input
+                      value={newPost.title}
+                      onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                      placeholder="Title"
+                    />
+                    <textarea
+                      value={newPost.content}
+                      onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                      placeholder="Text (optional)"
+                      rows={4}
+                      className="w-full p-3 border border-black rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white text-black placeholder-black"
+                    />
+                    <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowCreatePost(false)}
+                        className="w-full sm:w-auto"
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto">
+                        Post
+                      </Button>
                     </div>
-                  </Card>
-                ))
+                  </form>
+                </Card>
               )}
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="col-span-12 lg:col-span-4 space-y-4">
-            {/* Popular Communities */}
-            <Card className="bg-white border border-gray-300">
-              <div className="p-3 border-b border-gray-200">
-                <h3 className="font-bold text-gray-900">Popular Communities</h3>
-              </div>
-              <div className="p-3 space-y-3">
-                {colleges.slice(0, 5).map((college, index) => (
-                  <div key={college._id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-gray-500 w-4">{index + 1}</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs">r/</span>
+              {/* Posts */}
+              <div className="space-y-4">
+                {projects.length === 0 ? (
+                  <Card className="p-12 text-center">
+                    <h3 className="text-lg font-semibold text-black mb-2">No projects yet</h3>
+                    <p className="text-black mb-4">Be the first to create a project!</p>
+                    <Button
+                      onClick={() => setShowCreatePost(true)}
+                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                    >
+                      Create Project
+                    </Button>
+                  </Card>
+                ) : (
+                  projects.map((project) => (
+                    <Card key={project._id} className="hover:border-orange-500 transition-colors shadow-lg">
+                      <div className="flex flex-col sm:flex-row">
+                        {/* Vote Buttons */}
+                        <div className="flex sm:flex-col items-center justify-center sm:justify-start p-2 bg-white border-b sm:border-b-0 sm:border-r border-black rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl order-2 sm:order-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleVote(project._id, 'up')}
+                            className={cn(
+                              "p-1 hover:bg-white rounded-lg",
+                              upvotedPosts.has(project._id) ? "text-orange-500" : "text-black"
+                            )}
+                          >
+                            <ArrowUp size={20} />
+                          </Button>
+                          <span className={cn(
+                            "text-sm font-bold py-1",
+                            upvotedPosts.has(project._id) ? "text-orange-500" :
+                              downvotedPosts.has(project._id) ? "text-blue-500" : "text-black"
+                          )}>
+                            {getVoteCount(project)}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleVote(project._id, 'down')}
+                            className={cn(
+                              "p-1 hover:bg-white rounded-lg",
+                              downvotedPosts.has(project._id) ? "text-blue-500" : "text-black"
+                            )}
+                          >
+                            <ArrowDown size={20} />
+                          </Button>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">r/{college.name}</p>
-                          <p className="text-xs text-gray-500">{Math.floor(Math.random() * 10000)} members</p>
+                        {/* Post Content */}
+                        <div className="flex-1 p-3 sm:p-4 order-1 sm:order-2">
+                          {/* Post Header */}
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs text-black mb-2">
+                            <span className="font-bold hover:underline cursor-pointer text-black">
+                              {/* {project.collegeId?.name} or other label */}
+                            </span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="truncate">Posted by u/{project.createdBy?.name || project.ownerId?.name || 'anonymous'}</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="flex-shrink-0">{formatTimeAgo(project.createdAt)}</span>
+                          </div>
+                          {/* Title */}
+                          <h3 className="text-lg sm:text-xl font-semibold text-black mb-2 hover:text-orange-500 cursor-pointer line-clamp-2">
+                            {project.title}
+                          </h3>
+                          {/* Content */}
+                          <p className="text-black text-sm mb-3 line-clamp-3">
+                            {project.description}
+                          </p>
+                          {/* Status Badge */}
+                          {project.status && (
+                            <Badge
+                              color={project.status === 'open' ? 'blue' : 'gray'}
+                              className="mb-3"
+                            >
+                              {project.status}
+                            </Badge>
+                          )}
+                          {/* Actions */}
+                          <div className="flex items-center gap-2 sm:gap-4 text-black overflow-x-auto">
+                            <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-white text-black hover:text-black flex-shrink-0 rounded-lg">
+                              <MessageSquare size={14} />
+                              <span className="hidden sm:inline">{project.comments} Comments</span>
+                              <span className="sm:hidden">{project.comments}</span>
+                            </Button>
+                            <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-white text-black hover:text-black flex-shrink-0 rounded-lg">
+                              <Share size={14} />
+                              <span className="hidden sm:inline">Share</span>
+                            </Button>
+                            <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-white text-black hover:text-black flex-shrink-0 rounded-lg">
+                              <Bookmark size={14} />
+                              <span className="hidden sm:inline">Save</span>
+                            </Button>
+                            <Button variant="ghost" size="sm" className="p-1 hover:bg-white text-black hover:text-black flex-shrink-0 rounded-lg">
+                              <MoreHorizontal size={14} />
+                            </Button>
+                          </div>
                         </div>
                       </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </div>
+            {/* Sidebar */}
+            <div className="w-full lg:w-80 lg:flex-shrink-0 space-y-6">
+              {/* Popular Communities */}
+              <Card>
+                <div className="p-4 border-b border-black rounded-t-2xl">
+                  <h3 className="font-bold text-black">Popular Colleges</h3>
+                </div>
+                <div className="p-4 space-y-3">
+                  {colleges.slice(0, 5).map((college, index) => (
+                    <div key={college._id} className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                        <span className="text-xs text-black w-3 sm:w-4 flex-shrink-0">{index + 1}</span>
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-xs">C</span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-black truncate">{college.name}</p>
+                            <p className="text-xs text-black">{Math.floor(Math.random() * 10000)} members</p>
+                          </div>
+                        </div>
+                      </div>
+                      <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 sm:px-3 py-1 flex-shrink-0 rounded-lg">
+                        Join
+                      </Button>
                     </div>
-                    <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1">
-                      Join
-                    </Button>
-                  </div>
-                ))}
-                <Button variant="outline" className="w-full text-blue-500 border-blue-500 hover:bg-blue-50">
-                  View All
-                </Button>
-              </div>
-            </Card>
-
-            {/* User Info */}
-            <Card className="bg-white border border-gray-300">
-              <div className="p-3">
-                <div className="flex items-center gap-3 mb-3">
-                  <Avatar name={user?.name} size={40} className="bg-orange-500" />
-                  <div>
-                    <p className="font-bold text-gray-900">{user?.name}</p>
-                    <p className="text-sm text-gray-500">Student at {user?.collegeId?.name || 'Engineering College'}</p>
-                  </div>
+                  ))}
+                  <Button variant="outline" className="w-full text-blue-500 border-blue-500 hover:bg-white rounded-lg">
+                    View All
+                  </Button>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600 mb-3">
-                  <div className="text-center">
-                    <p className="font-bold text-orange-500">1.2k</p>
-                    <p>Karma</p>
+              </Card>
+              {/* User Info */}
+              <Card>
+                <div className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Avatar name={user?.name} size={40} className="bg-orange-500" />
+                    <div>
+                      <p className="font-bold text-black">{user?.name}</p>
+                      <p className="text-sm text-black">Student at {user?.collegeId?.name || 'Engineering College'}</p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="font-bold text-blue-500">2y</p>
-                    <p>Cake day</p>
+                  <div className="flex justify-between text-sm text-black mb-3">
+                    <div className="text-center flex-1">
+                      <p className="font-bold text-orange-500">1.2k</p>
+                      <p className="text-xs sm:text-sm">Karma</p>
+                    </div>
+                    <div className="text-center flex-1">
+                      <p className="font-bold text-blue-500">2y</p>
+                      <p className="text-xs sm:text-sm">Cake day</p>
+                    </div>
                   </div>
+                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg">
+                    New Project
+                  </Button>
                 </div>
-                <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
-                  New Project
-                </Button>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

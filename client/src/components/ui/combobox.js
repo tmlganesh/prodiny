@@ -33,9 +33,9 @@ export function Combobox({ options, value, onChange, placeholder = "Select...", 
         <span className="ml-2">▾</span>
       </Button>
       {open && (
-        <div className="absolute z-10 mt-1 w-full bg-black border border-gray-700 rounded-md shadow-lg">
+        <div className="absolute z-10 mt-1 w-full bg-white border border-black rounded-lg shadow-lg">
           <input
-            className="w-full px-3 py-2 bg-black text-white border-b border-gray-700 focus:outline-none"
+            className="w-full px-3 py-2 bg-white text-black border-b border-black focus:outline-none placeholder-black rounded-t-lg"
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -43,12 +43,12 @@ export function Combobox({ options, value, onChange, placeholder = "Select...", 
           />
           <ul className="max-h-48 overflow-auto" role="listbox">
             {filtered.length === 0 && (
-              <li className="px-3 py-2 text-gray-400">No options</li>
+              <li className="px-3 py-2 text-black">No options</li>
             )}
             {filtered.map((opt) => (
               <li
                 key={opt.value}
-                className={`px-3 py-2 cursor-pointer hover:bg-gray-800 ${value === opt.value ? "bg-gray-900" : ""}`}
+                className={`px-3 py-2 cursor-pointer hover:bg-white text-black ${value === opt.value ? "bg-white" : ""}`}
                 role="option"
                 aria-selected={value === opt.value}
                 onClick={() => {

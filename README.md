@@ -65,14 +65,14 @@ MONGODB_URI=mongodb+srv://ganesh:Prodiny123@cluster0.ucqxdv1.mongodb.net/prodiny
 ### **User Flow**
 1. **Visit** http://localhost:3000
 2. **Login** with any sample account
-3. **Browse** Reddit-style project feed
+3. **Browse** project feed
 4. **Click** on college names to expand subgroups
 5. **Join** projects and subgroups
 6. **Create** new projects and communities
 
 ### **Features Active**
 - ✅ **Authentication**: Secure JWT login/signup
-- ✅ **Project Feed**: Reddit-style interface
+- ✅ **Project Feed**: Modern project feed interface
 - ✅ **College Communities**: Expandable sections
 - ✅ **Join/Leave**: Projects and subgroups
 - ✅ **Recommendations**: Suggested subgroups
@@ -111,7 +111,7 @@ npm run dev
 - Call-to-action buttons
 
 ### **Dashboard** (After Login)
-- Reddit-style project feed
+- Project feed
 - Expandable college communities
 - Recommended subgroups sidebar
 - Join/leave functionality
@@ -127,7 +127,7 @@ npm run dev
 Edit `client/tailwind.config.js`:
 ```javascript
 colors: {
-  reddit: {
+  // ...existing code...
     orange: '#FF4500',    // Primary color
     blue: '#0079D3',      // Secondary color
     // ... customize as needed
@@ -271,8 +271,8 @@ Prodiny-new/
 
 ## Features in Detail
 
-### Reddit-style Interface
-- **Project Feed**: Main feed showing projects like Reddit posts
+### Project Feed Interface
+- **Project Feed**: Main feed showing projects in a modern, community-driven style
 - **Voting System**: Upvote projects (visual only in current version)
 - **College Communities**: Expandable sections showing subgroups
 - **Responsive Design**: Works on desktop and mobile
