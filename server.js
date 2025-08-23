@@ -7,7 +7,17 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://prodiny.vercel.app',
+    'https://prodiny-client.vercel.app',
+    // Add your actual Vercel domain here
+    process.env.CLIENT_URL || 'http://localhost:3000'
+  ],
+  credentials: true
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
