@@ -6,8 +6,8 @@ export function Avatar({ name, size = 40, className = '' }) {
   
   // Check if className contains a background color, if not use default
   const hasCustomBg = className.includes('bg-');
-  const defaultClasses = hasCustomBg ? '' : 'bg-gray-300';
-  const textColor = hasCustomBg ? 'text-white' : 'text-gray-700';
+  const defaultClasses = hasCustomBg ? '' : 'bg-primary-600';
+  const textColor = 'text-white';
   
   return (
     <div style={{ width: sz, height: sz }} className={`rounded-full ${defaultClasses} flex items-center justify-center ${className}`}>

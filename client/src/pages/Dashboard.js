@@ -141,49 +141,46 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-lg text-black">Loading...</span>
+          <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-lg text-gray-900 font-medium">Loading...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <div className="relative z-10 min-h-screen">
         {/* Header */}
-        <header className="sticky top-0 z-50 bg-white border-b border-black shadow-sm">
+        <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-soft">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center justify-between h-14">
+            <div className="flex items-center justify-between h-16">
               {/* Logo */}
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">P</span>
                 </div>
-                <span className="font-bold text-lg sm:text-xl text-black tracking-wide">prodiny</span>
+                <span className="font-semibold text-xl text-gray-900 tracking-tight">Prodiny</span>
               </div>
               {/* Search */}
               <div className="hidden sm:flex flex-1 max-w-lg mx-4 lg:mx-8">
-                <div className="relative w-full">
-                  <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" />
-                  <Input
-                    placeholder="Search Prodiny"
-                    className="w-full pl-10 pr-4 py-2 bg-white border-black rounded-full focus:bg-white focus:border-black text-black placeholder-black"
-                  />
-                </div>
+                <Input
+                  placeholder="Search projects..."
+                  className="w-full px-4 py-2.5 bg-white border-gray-300 focus:border-primary-500 focus:ring-primary-500 text-gray-900 placeholder-gray-500 rounded-lg"
+                />
               </div>
               {/* User Actions */}
-              <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                <Button variant="ghost" size="sm" className="p-2 hover:bg-white rounded-lg">
-                  <Bell size={18} className="text-black" />
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Button variant="ghost" size="sm" className="p-2 text-gray-600 hover:text-gray-900">
+                  <Bell size={18} />
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-                    <div className="flex items-center gap-1 sm:gap-2 p-1 rounded-lg hover:bg-white">
-                      <Avatar name={user?.name} size={24} className="bg-orange-500" />
-                      <ChevronDown size={14} className="text-black hidden sm:block" />
+                    <div className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded-lg transition-colors">
+                      <Avatar name={user?.name} size={32} className="bg-primary-600" />
+                      <ChevronDown size={14} className="text-gray-600 hidden sm:block" />
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent isOpen={isDropdownOpen}>
@@ -196,45 +193,45 @@ const Dashboard = () => {
             </div>
           </div>
         </header>
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
-          <div className="flex flex-col lg:flex-row gap-6">
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
+          <div className="flex flex-col lg:flex-row gap-8">
             {/* Main Content */}
             <div className="flex-1 lg:flex-[2] min-w-0">
               {/* Tabs */}
-              <div className="bg-white rounded-2xl border border-black mb-6 shadow-lg">
+              <div className="bg-white border border-gray-200 rounded-lg mb-6 shadow-soft">
                 <div className="grid w-full grid-cols-4">
                   <button
                     onClick={() => setActiveTab('best')}
-                    className={`flex items-center justify-center py-4 px-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'best'
-                        ? 'border-orange-500 text-black'
-                        : 'border-transparent text-black hover:text-orange-500'
+                    className={`flex items-center justify-center py-3 px-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'best'
+                      ? 'border-primary-600 text-primary-600 bg-primary-50'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                       }`}
                   >
                     Best
                   </button>
                   <button
                     onClick={() => setActiveTab('hot')}
-                    className={`flex items-center justify-center py-4 px-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'hot'
-                        ? 'border-orange-500 text-black'
-                        : 'border-transparent text-black hover:text-orange-500'
+                    className={`flex items-center justify-center py-3 px-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'hot'
+                      ? 'border-primary-600 text-primary-600 bg-primary-50'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                       }`}
                   >
                     Hot
                   </button>
                   <button
                     onClick={() => setActiveTab('new')}
-                    className={`flex items-center justify-center py-4 px-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'new'
-                        ? 'border-orange-500 text-black'
-                        : 'border-transparent text-black hover:text-orange-500'
+                    className={`flex items-center justify-center py-3 px-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'new'
+                      ? 'border-primary-600 text-primary-600 bg-primary-50'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                       }`}
                   >
                     New
                   </button>
                   <button
                     onClick={() => setActiveTab('top')}
-                    className={`flex items-center justify-center py-4 px-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'top'
-                        ? 'border-orange-500 text-black'
-                        : 'border-transparent text-black hover:text-orange-500'
+                    className={`flex items-center justify-center py-3 px-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'top'
+                      ? 'border-primary-600 text-primary-600 bg-primary-50'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                       }`}
                   >
                     Top
@@ -243,34 +240,35 @@ const Dashboard = () => {
               </div>
               {/* Create Post */}
               {!showCreatePost ? (
-                <Card className="p-3 sm:p-4 mb-6">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <Avatar name={user?.name} size={32} className="bg-orange-500 flex-shrink-0" />
+                <Card className="p-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <Avatar name={user?.name} size={40} className="bg-primary-600 flex-shrink-0" />
                     <Button
                       onClick={() => setShowCreatePost(true)}
                       variant="outline"
-                      className="flex-1 text-left justify-start min-w-0"
+                      className="flex-1 text-left justify-start min-w-0 text-gray-600"
                     >
-                      <span className="truncate">Create Project</span>
+                      <span className="truncate">What's on your mind? Create a project...</span>
                     </Button>
                   </div>
                 </Card>
               ) : (
-                <Card className="p-4 sm:p-6 mb-6">
-                  <form onSubmit={handleCreatePost} className="space-y-3">
+                <Card className="p-6 mb-6">
+                  <form onSubmit={handleCreatePost} className="space-y-4">
                     <Input
                       value={newPost.title}
                       onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                      placeholder="Title"
+                      placeholder="Project title"
+                      className="text-gray-900"
                     />
                     <textarea
                       value={newPost.content}
                       onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-                      placeholder="Text (optional)"
+                      placeholder="Describe your project idea..."
                       rows={4}
-                      className="w-full p-3 border border-black rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white text-black placeholder-black"
+                      className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-gray-900 placeholder-gray-500"
                     />
-                    <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
                       <Button
                         type="button"
                         variant="outline"
@@ -279,8 +277,8 @@ const Dashboard = () => {
                       >
                         Cancel
                       </Button>
-                      <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto">
-                        Post
+                      <Button type="submit" className="w-full sm:w-auto">
+                        Create Project
                       </Button>
                     </div>
                   </form>
@@ -290,37 +288,35 @@ const Dashboard = () => {
               <div className="space-y-4">
                 {projects.length === 0 ? (
                   <Card className="p-12 text-center">
-                    <h3 className="text-lg font-semibold text-black mb-2">No projects yet</h3>
-                    <p className="text-black mb-4">Be the first to create a project!</p>
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <MessageSquare size={24} className="text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No projects yet</h3>
+                    <p className="text-gray-600 mb-6">Be the first to create a project and start collaborating!</p>
                     <Button
                       onClick={() => setShowCreatePost(true)}
-                      className="bg-orange-500 hover:bg-orange-600 text-white"
                     >
-                      Create Project
+                      Create Your First Project
                     </Button>
                   </Card>
                 ) : (
                   projects.map((project) => (
-                    <Card key={project._id} className="hover:border-orange-500 transition-colors shadow-lg">
+                    <Card key={project._id} className="hover:shadow-medium transition-shadow">
                       <div className="flex flex-col sm:flex-row">
                         {/* Vote Buttons */}
-                        <div className="flex sm:flex-col items-center justify-center sm:justify-start p-2 bg-white border-b sm:border-b-0 sm:border-r border-black rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl order-2 sm:order-1">
+                        <div className="flex sm:flex-col items-center justify-center sm:justify-start p-4 bg-gray-50 border-b sm:border-b-0 sm:border-r border-gray-200 order-2 sm:order-1">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleVote(project._id, 'up')}
                             className={cn(
-                              "p-1 hover:bg-white rounded-lg",
-                              upvotedPosts.has(project._id) ? "text-orange-500" : "text-black"
+                              "p-1 hover:bg-gray-200",
+                              upvotedPosts.has(project._id) ? "text-primary-600" : "text-gray-500"
                             )}
                           >
-                            <ArrowUp size={20} />
+                            <ArrowUp size={16} />
                           </Button>
-                          <span className={cn(
-                            "text-sm font-bold py-1",
-                            upvotedPosts.has(project._id) ? "text-orange-500" :
-                              downvotedPosts.has(project._id) ? "text-blue-500" : "text-black"
-                          )}>
+                          <span className="text-sm font-semibold py-1 text-gray-900">
                             {getVoteCount(project)}
                           </span>
                           <Button
@@ -328,58 +324,58 @@ const Dashboard = () => {
                             size="sm"
                             onClick={() => handleVote(project._id, 'down')}
                             className={cn(
-                              "p-1 hover:bg-white rounded-lg",
-                              downvotedPosts.has(project._id) ? "text-blue-500" : "text-black"
+                              "p-1 hover:bg-gray-200",
+                              downvotedPosts.has(project._id) ? "text-error-600" : "text-gray-500"
                             )}
                           >
-                            <ArrowDown size={20} />
+                            <ArrowDown size={16} />
                           </Button>
                         </div>
                         {/* Post Content */}
-                        <div className="flex-1 p-3 sm:p-4 order-1 sm:order-2">
+                        <div className="flex-1 p-4 sm:p-6 order-1 sm:order-2">
                           {/* Post Header */}
-                          <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs text-black mb-2">
-                            <span className="font-bold hover:underline cursor-pointer text-black">
-                              {/* {project.collegeId?.name} or other label */}
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-3">
+                            <span className="font-medium hover:text-primary-600 cursor-pointer">
+                              {project.collegeId?.name || 'Engineering'}
                             </span>
                             <span className="hidden sm:inline">•</span>
-                            <span className="truncate">Posted by u/{project.createdBy?.name || project.ownerId?.name || 'anonymous'}</span>
+                            <span className="truncate">Posted by {project.createdBy?.name || project.ownerId?.name || 'Anonymous'}</span>
                             <span className="hidden sm:inline">•</span>
                             <span className="flex-shrink-0">{formatTimeAgo(project.createdAt)}</span>
                           </div>
                           {/* Title */}
-                          <h3 className="text-lg sm:text-xl font-semibold text-black mb-2 hover:text-orange-500 cursor-pointer line-clamp-2">
+                          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-primary-600 cursor-pointer">
                             {project.title}
                           </h3>
                           {/* Content */}
-                          <p className="text-black text-sm mb-3 line-clamp-3">
+                          <p className="text-gray-700 text-sm mb-4 line-clamp-3 leading-relaxed">
                             {project.description}
                           </p>
                           {/* Status Badge */}
                           {project.status && (
                             <Badge
                               color={project.status === 'open' ? 'blue' : 'gray'}
-                              className="mb-3"
+                              className="mb-4"
                             >
                               {project.status}
                             </Badge>
                           )}
                           {/* Actions */}
-                          <div className="flex items-center gap-2 sm:gap-4 text-black overflow-x-auto">
-                            <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-white text-black hover:text-black flex-shrink-0 rounded-lg">
+                          <div className="flex items-center gap-6 text-gray-500">
+                            <Button variant="ghost" size="sm" className="flex items-center gap-2 text-xs hover:text-gray-700">
                               <MessageSquare size={14} />
                               <span className="hidden sm:inline">{project.comments} Comments</span>
                               <span className="sm:hidden">{project.comments}</span>
                             </Button>
-                            <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-white text-black hover:text-black flex-shrink-0 rounded-lg">
+                            <Button variant="ghost" size="sm" className="flex items-center gap-2 text-xs hover:text-gray-700">
                               <Share size={14} />
                               <span className="hidden sm:inline">Share</span>
                             </Button>
-                            <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-white text-black hover:text-black flex-shrink-0 rounded-lg">
+                            <Button variant="ghost" size="sm" className="flex items-center gap-2 text-xs hover:text-gray-700">
                               <Bookmark size={14} />
                               <span className="hidden sm:inline">Save</span>
                             </Button>
-                            <Button variant="ghost" size="sm" className="p-1 hover:bg-white text-black hover:text-black flex-shrink-0 rounded-lg">
+                            <Button variant="ghost" size="sm" className="p-1 hover:text-gray-700">
                               <MoreHorizontal size={14} />
                             </Button>
                           </div>
@@ -394,55 +390,55 @@ const Dashboard = () => {
             <div className="w-full lg:w-80 lg:flex-shrink-0 space-y-6">
               {/* Popular Communities */}
               <Card>
-                <div className="p-4 border-b border-black rounded-t-2xl">
-                  <h3 className="font-bold text-black">Popular Colleges</h3>
+                <div className="p-4 border-b border-gray-200">
+                  <h3 className="font-semibold text-gray-900">Popular Colleges</h3>
                 </div>
                 <div className="p-4 space-y-3">
                   {colleges.slice(0, 5).map((college, index) => (
-                    <div key={college._id} className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                        <span className="text-xs text-black w-3 sm:w-4 flex-shrink-0">{index + 1}</span>
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                            <span className="text-white text-xs">C</span>
+                    <div key={college._id} className="flex items-center justify-between gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <span className="text-sm text-gray-500 w-4 flex-shrink-0 font-medium">{index + 1}</span>
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-xs font-semibold">{college.name.charAt(0)}</span>
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-black truncate">{college.name}</p>
-                            <p className="text-xs text-black">{Math.floor(Math.random() * 10000)} members</p>
+                            <p className="text-sm font-medium text-gray-900 truncate">{college.name}</p>
+                            <p className="text-xs text-gray-500">{Math.floor(Math.random() * 10000)} members</p>
                           </div>
                         </div>
                       </div>
-                      <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 sm:px-3 py-1 flex-shrink-0 rounded-lg">
+                      <Button size="sm" className="text-xs px-3 py-1 flex-shrink-0">
                         Join
                       </Button>
                     </div>
                   ))}
-                  <Button variant="outline" className="w-full text-blue-500 border-blue-500 hover:bg-white rounded-lg">
-                    View All
+                  <Button variant="outline" className="w-full mt-4">
+                    View All Colleges
                   </Button>
                 </div>
               </Card>
               {/* User Info */}
               <Card>
-                <div className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Avatar name={user?.name} size={40} className="bg-orange-500" />
+                <div className="p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <Avatar name={user?.name} size={48} className="bg-primary-600" />
                     <div>
-                      <p className="font-bold text-black">{user?.name}</p>
-                      <p className="text-sm text-black">Student at {user?.collegeId?.name || 'Engineering College'}</p>
+                      <p className="font-semibold text-gray-900">{user?.name}</p>
+                      <p className="text-sm text-gray-600">Student at {user?.collegeId?.name || 'Engineering College'}</p>
                     </div>
                   </div>
-                  <div className="flex justify-between text-sm text-black mb-3">
+                  <div className="flex justify-between text-sm mb-6 border-t border-gray-200 pt-4">
                     <div className="text-center flex-1">
-                      <p className="font-bold text-orange-500">1.2k</p>
-                      <p className="text-xs sm:text-sm">Karma</p>
+                      <p className="font-semibold text-gray-900 text-lg">1.2k</p>
+                      <p className="text-xs text-gray-500">Karma</p>
                     </div>
-                    <div className="text-center flex-1">
-                      <p className="font-bold text-blue-500">2y</p>
-                      <p className="text-xs sm:text-sm">Cake day</p>
+                    <div className="text-center flex-1 border-l border-gray-200">
+                      <p className="font-semibold text-gray-900 text-lg">2y</p>
+                      <p className="text-xs text-gray-500">Cake day</p>
                     </div>
                   </div>
-                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg">
+                  <Button className="w-full" onClick={() => setShowCreatePost(true)}>
                     New Project
                   </Button>
                 </div>
