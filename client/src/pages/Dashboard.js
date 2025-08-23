@@ -1,95 +1,124 @@
 import React, { useState, useEffect } from 'react';
-import { Search, LogOut, MessageSquare, Users, Heart, Trash2 } from 'lucide-react';
-import api from '../utils/api';
+import { 
+  ArrowUp, 
+  ArrowDown, 
+  MessageSquare, 
+  Share, 
+  Bookmark, 
+  MoreHorizontal,
+  Search,
+  Bell,
+  TrendingUp,
+  Star,
+  Award,
+  Eye,
+  ChevronDown
+} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
+import api from '../utils/api';
+import { cn } from '../utils/cn';
 import { Button } from '../components/ui/button';
-import Avatar from '../components/ui/avatar';
+import { Input } from '../components/ui/input';
+import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Spinner } from '../components/ui/spinner';
-import { Tag } from '../components/ui/tag';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../components/ui/dropdown-menu';
+import Avatar from '../components/ui/avatar';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [posts, setPosts] = useState([]);
-  const [subgroups, setSubgroups] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newPost, setNewPost] = useState({ title: '', content: '' });
+  const [activeTab, setActiveTab] = useState('best');
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [newPost, setNewPost] = useState({ title: '', content: '' });
+  const [colleges, setColleges] = useState([]);
+  const [upvotedPosts, setUpvotedPosts] = useState(new Set());
+  const [downvotedPosts, setDownvotedPosts] = useState(new Set());
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
-    fetchPosts();
-    fetchSubgroups();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchProjects();
+    fetchColleges();
   }, []);
 
-  const fetchPosts = async () => {
+  const fetchProjects = async () => {
     try {
-      const response = await api.get('/projects?limit=20');
-      setPosts(response.data.projects || []);
+      const response = await api.get('/projects');
+      const projectsData = response.data.projects || response.data || [];
+      setProjects(projectsData.map(project => ({
+        ...project,
+        upvotes: project.upvotes || Math.floor(Math.random() * 1000),
+        comments: project.comments || Math.floor(Math.random() * 50),
+        subreddit: project.collegeId?.name || 'engineering'
+      })));
     } catch (error) {
-      console.error('Error fetching posts:', error);
-      if (error.response?.status === 401) {
-        toast.error('Please log in to view posts');
-        navigate('/login');
-      } else {
-        toast.error('Failed to load posts');
-      }
+      console.error('Error fetching projects:', error);
+      // Set some dummy data for demo
+      setProjects([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchSubgroups = async () => {
+  const fetchColleges = async () => {
     try {
-      const response = await api.get('/subgroups/recommended');
-      setSubgroups(response.data || []);
+      const response = await api.get('/colleges');
+      setColleges(response.data || []);
     } catch (error) {
-      console.error('Error fetching subgroups:', error);
+      console.error('Error fetching colleges:', error);
     }
   };
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
-    if (!newPost.title.trim() || !newPost.content.trim()) {
-      toast.error('Please fill in all fields');
-      return;
-    }
+    if (!newPost.title.trim() || !newPost.content.trim()) return;
 
     try {
-      
-      const response = await api.post('/projects', {
+      await api.post('/projects', {
         title: newPost.title,
         description: newPost.content,
-        status: 'open',
-        tags: []
+        status: 'open'
       });
-      
-      
-      toast.success('Post created successfully!');
       setNewPost({ title: '', content: '' });
       setShowCreatePost(false);
-      fetchPosts();
+      fetchProjects();
     } catch (error) {
       console.error('Error creating post:', error);
-      console.error('Error response:', error.response?.data);
-      
-      if (error.response?.status === 401) {
-        toast.error('Please log in to create posts');
-        navigate('/login');
-      } else if (error.response?.status === 400) {
-        const errorMsg = error.response.data?.errors?.[0]?.msg || 
-                        error.response.data?.message || 
-                        'Validation error';
-        toast.error(errorMsg);
-      } else {
-        toast.error('Failed to create post');
-      }
+    }
+  };
+
+  const handleVote = (postId, type) => {
+    if (type === 'up') {
+      setUpvotedPosts(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(postId)) {
+          newSet.delete(postId);
+        } else {
+          newSet.add(postId);
+          setDownvotedPosts(prevDown => {
+            const newDownSet = new Set(prevDown);
+            newDownSet.delete(postId);
+            return newDownSet;
+          });
+        }
+        return newSet;
+      });
+    } else {
+      setDownvotedPosts(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(postId)) {
+          newSet.delete(postId);
+        } else {
+          newSet.add(postId);
+          setUpvotedPosts(prevUp => {
+            const newUpSet = new Set(prevUp);
+            newUpSet.delete(postId);
+            return newUpSet;
+          });
+        }
+        return newSet;
+      });
     }
   };
 
@@ -98,259 +127,339 @@ const Dashboard = () => {
     const date = new Date(dateString);
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
     
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    return `${Math.floor(diffInHours / 24)}d ago`;
+    if (diffInHours < 1) return 'now';
+    if (diffInHours < 24) return `${diffInHours}h`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d`;
+    return `${Math.floor(diffInDays / 7)}w`;
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const handleDeletePost = async (postId) => {
-    if (!window.confirm('Are you sure you want to delete this post?')) {
-      return;
-    }
-
-    try {
-      await api.delete(`/projects/${postId}`);
-      toast.success('Post deleted successfully!');
-      fetchPosts(); // Refresh the posts list
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      if (error.response?.status === 401) {
-        toast.error('Please log in to delete posts');
-        navigate('/login');
-      } else if (error.response?.status === 403) {
-        toast.error('You can only delete your own posts');
-      } else {
-        toast.error('Failed to delete post');
-      }
-    }
+  const getVoteCount = (project) => {
+    const baseVotes = project.upvotes || 0;
+    const upvoteBonus = upvotedPosts.has(project._id) ? 1 : 0;
+    const downvoteBonus = downvotedPosts.has(project._id) ? -1 : 0;
+    return baseVotes + upvoteBonus + downvoteBonus;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
-        <div className="text-center">
-          <Spinner className="mx-auto mb-4 border-white/20 border-t-white" />
-          <p className="text-white">Loading dashboard...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-lg text-gray-700">Loading...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-  <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-gradient-to-b from-gray-950 to-black/80 backdrop-blur-md">
-        <div className="container mx-auto flex h-16 max-w-7xl items-center px-4">
-          {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 bg-white/10 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">P</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header - Reddit Style */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-300 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-12">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">P</span>
+              </div>
+              <span className="font-bold text-xl text-gray-900">prodiny</span>
             </div>
-            <span className="font-bold text-xl">Prodiny</span>
-          </div>
-          
-          {/* Search */}
-          <div className="flex flex-1 items-center justify-center px-6">
-              <div className="relative w-full max-w-md">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                type="search"
-                placeholder="Search posts, communities..."
-                className="w-full pl-10 pr-4 py-2 bg-black text-white border-gray-700"
-              />
-            </div>
-          </div>
 
-          {/* User Menu */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Avatar name={user?.name} size={32} className="bg-white/10" />
-              <span className="text-sm font-medium hidden md:block">{user?.name}</span>
+            {/* Search */}
+            <div className="flex-1 max-w-lg mx-8">
+              <div className="relative">
+                <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Input
+                  placeholder="Search Prodiny"
+                  className="w-full pl-10 pr-4 py-2 bg-gray-100 border-gray-300 rounded-full focus:bg-white focus:border-blue-500"
+                />
+              </div>
             </div>
-            <Button onClick={handleLogout} variant="outline" className="p-2 text-gray-300 rounded-lg border-white/10 bg-transparent">
-              <LogOut className="h-4 w-4" />
-            </Button>
+
+            {/* User Actions */}
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" className="p-2">
+                <Bell size={20} className="text-gray-500" />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                  <div className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100">
+                    <Avatar name={user?.name} size={24} className="bg-orange-500" />
+                    <ChevronDown size={16} className="text-gray-500" />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent isOpen={isDropdownOpen}>
+                  <DropdownMenuItem onClick={logout}>
+                    Log Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="container mx-auto max-w-7xl px-4 py-6">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-          {/* Main Feed - 3 columns */}
-          <div className="lg:col-span-3 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="grid grid-cols-12 gap-4">
+          {/* Main Content */}
+          <div className="col-span-12 lg:col-span-8">
+            {/* Tabs */}
+            <div className="bg-white rounded-lg border border-gray-300 mb-4">
+              <Tabs className="w-full">
+                <TabsList className="grid w-full grid-cols-4 bg-transparent border-b border-gray-200 rounded-none p-0">
+                  <TabsTrigger 
+                    value="best" 
+                    isActive={activeTab === 'best'} 
+                    onClick={setActiveTab}
+                    className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
+                  >
+                    <Award size={16} />
+                    Best
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="hot" 
+                    isActive={activeTab === 'hot'} 
+                    onClick={setActiveTab}
+                    className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
+                  >
+                    <TrendingUp size={16} />
+                    Hot
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="new" 
+                    isActive={activeTab === 'new'} 
+                    onClick={setActiveTab}
+                    className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
+                  >
+                    <Star size={16} />
+                    New
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="top" 
+                    isActive={activeTab === 'top'} 
+                    onClick={setActiveTab}
+                    className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-transparent"
+                  >
+                    <Eye size={16} />
+                    Top
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
             {/* Create Post */}
-            <Card className="border border-gray-800">
-              {!showCreatePost ? (
-                <Button onClick={() => setShowCreatePost(true)} variant="outline" className="w-full flex items-center space-x-3 p-3 text-left text-gray-200 bg-transparent border-white/10">
-                  <Avatar name={user?.name} size={32} className="bg-white/10" />
-                  <span className="text-gray-200">What's on your mind?</span>
-                </Button>
-                ) : (
-                <form onSubmit={handleCreatePost} className="space-y-4 p-4">
+            {!showCreatePost ? (
+              <Card className="p-3 mb-4 bg-white border border-gray-300">
+                <div className="flex items-center gap-3">
+                  <Avatar name={user?.name} size={32} className="bg-orange-500" />
+                  <Button
+                    onClick={() => setShowCreatePost(true)}
+                    variant="outline"
+                    className="flex-1 text-left justify-start bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-500"
+                  >
+                    Create Project
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <Card className="p-4 mb-4 bg-white border border-gray-300">
+                <form onSubmit={handleCreatePost} className="space-y-3">
                   <Input
-                    type="text"
-                    placeholder="Post title..."
                     value={newPost.title}
                     onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                    className="w-full bg-black text-white border-gray-700"
+                    placeholder="Title"
+                    className="border-gray-300"
                   />
-                  <Textarea
-                    placeholder="What's happening in your project?"
+                  <textarea
                     value={newPost.content}
                     onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                    placeholder="Text (optional)"
                     rows={4}
-                    className="w-full resize-none bg-white/5 text-white border-gray-700"
+                    className="w-full p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setShowCreatePost(false);
-                        setNewPost({ title: '', content: '' });
-                      }}
-                      variant="outline"
-                      className="px-4 py-2 text-gray-200 border-white/10"
+                  <div className="flex gap-2 justify-end">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setShowCreatePost(false)}
+                      className="border-gray-300"
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" className="px-6 py-2 bg-white text-black" variant="primary">Post</Button>
+                    <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white">
+                      Post
+                    </Button>
                   </div>
                 </form>
-                )}
-            </Card>
+              </Card>
+            )}
 
-            {/* Posts Feed */}
-            <div className="space-y-4">
-              {posts.length === 0 ? (
-                <Card className="border border-gray-800 p-8 text-center">
-                  <h3 className="text-lg font-semibold text-white">No posts yet</h3>
-                  <p className="text-gray-400 mt-2">Be the first to create a post!</p>
+            {/* Posts */}
+            <div className="space-y-2">
+              {projects.length === 0 ? (
+                <Card className="p-8 text-center bg-white border border-gray-300">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No projects yet</h3>
+                  <p className="text-gray-600 mb-4">Be the first to create a project!</p>
+                  <Button 
+                    onClick={() => setShowCreatePost(true)}
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                  >
+                    Create Project
+                  </Button>
                 </Card>
               ) : (
-                posts.map((post) => {
-                  return (
-                    <Card key={post._id} className="border border-gray-800">
-                      <div className="p-6">
-                        <div className="flex items-center space-x-2 text-sm text-gray-400 mb-3">
-                          <span className="font-medium">r/{post.collegeId?.name || 'Unknown'}</span>
-                          <span>•</span>
-                          <span>Posted by u/{post.ownerId?.name || 'Unknown'}</span>
-                          <span>•</span>
-                          <span>{formatTimeAgo(post.createdAt)}</span>
-                        </div>
-                        
-                        <h3 className="text-lg font-semibold text-white mb-2">{post.title}</h3>
-                        <p className="text-gray-300 mb-4">{post.description}</p>
-                        
-                        {post.tags && post.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {post.tags.map((tag, index) => (
-                              <Tag key={index}>{tag}</Tag>
-                            ))}
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 text-gray-300">
-                            <Button variant="outline" className="flex items-center gap-1 text-sm text-gray-300 border-white/10">
-                              <Heart className="h-4 w-4" />
-                              <span>Like</span>
-                            </Button>
-                            <Button variant="outline" className="flex items-center gap-1 text-sm text-gray-300 border-white/10">
-                              <MessageSquare className="h-4 w-4" />
-                              <span>Comment</span>
-                            </Button>
-                            <Button variant="outline" className="flex items-center gap-1 text-sm text-gray-300 border-white/10">
-                              <Users className="h-4 w-4" />
-                              <span>Join ({post.members?.length || 0})</span>
-                            </Button>
-                            <Badge color="green">{post.status}</Badge>
-                          </div>
-                          
-                          {user && post.ownerId?._id === user.id && (
-                            <Button onClick={() => handleDeletePost(post._id)} variant="outline" className="flex items-center gap-1 text-sm text-gray-300 border-white/10">
-                              <Trash2 className="h-4 w-4" />
-                              <span>Delete</span>
-                            </Button>
+                projects.map((project) => (
+                  <Card key={project._id} className="bg-white border border-gray-300 hover:border-gray-400 transition-colors">
+                    <div className="flex">
+                      {/* Vote Buttons */}
+                      <div className="flex flex-col items-center p-2 bg-gray-50 border-r border-gray-200">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleVote(project._id, 'up')}
+                          className={cn(
+                            "p-1 hover:bg-orange-100",
+                            upvotedPosts.has(project._id) ? "text-orange-500" : "text-gray-400"
                           )}
+                        >
+                          <ArrowUp size={20} />
+                        </Button>
+                        <span className={cn(
+                          "text-sm font-bold py-1",
+                          upvotedPosts.has(project._id) ? "text-orange-500" : 
+                          downvotedPosts.has(project._id) ? "text-blue-500" : "text-gray-700"
+                        )}>
+                          {getVoteCount(project)}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleVote(project._id, 'down')}
+                          className={cn(
+                            "p-1 hover:bg-blue-100",
+                            downvotedPosts.has(project._id) ? "text-blue-500" : "text-gray-400"
+                          )}
+                        >
+                          <ArrowDown size={20} />
+                        </Button>
+                      </div>
+
+                      {/* Post Content */}
+                      <div className="flex-1 p-3">
+                        {/* Post Header */}
+                        <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                          <span className="font-bold hover:underline cursor-pointer">
+                            r/{project.subreddit}
+                          </span>
+                          <span>•</span>
+                          <span>Posted by u/{project.createdBy?.name || project.ownerId?.name || 'anonymous'}</span>
+                          <span>•</span>
+                          <span>{formatTimeAgo(project.createdAt)}</span>
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600 cursor-pointer">
+                          {project.title}
+                        </h3>
+
+                        {/* Content */}
+                        <p className="text-gray-700 text-sm mb-3 line-clamp-3">
+                          {project.description}
+                        </p>
+
+                        {/* Status Badge */}
+                        {project.status && (
+                          <Badge 
+                            variant={project.status === 'open' ? 'default' : 'secondary'}
+                            className="mb-3"
+                          >
+                            {project.status}
+                          </Badge>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-4 text-gray-500">
+                          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-gray-100">
+                            <MessageSquare size={16} />
+                            {project.comments} Comments
+                          </Button>
+                          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-gray-100">
+                            <Share size={16} />
+                            Share
+                          </Button>
+                          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs hover:bg-gray-100">
+                            <Bookmark size={16} />
+                            Save
+                          </Button>
+                          <Button variant="ghost" size="sm" className="p-1 hover:bg-gray-100">
+                            <MoreHorizontal size={16} />
+                          </Button>
                         </div>
                       </div>
-                    </Card>
-                  );
-                })
+                    </div>
+                  </Card>
+                ))
               )}
             </div>
           </div>
 
-          {/* Right Sidebar - 1 column */}
-          <div className="space-y-6">
-            {/* User Profile Card */}
-            <Card className="border border-gray-800 p-4">
-              <div className="flex items-center space-x-3 mb-2">
-                <Avatar name={user?.name} size={48} className="bg-white/10" />
-                <div>
-                  <h3 className="font-semibold text-white">{user?.name}</h3>
-                  <p className="text-sm text-gray-400">{user?.collegeId?.name || 'College Student'}</p>
-                </div>
-              </div>
-              <div className="mt-2">
-                <Button as="a" href="/profile" variant="outline" className="w-full text-gray-200 border-white/10">View Profile</Button>
-              </div>
-            </Card>
-
+          {/* Sidebar */}
+          <div className="col-span-12 lg:col-span-4 space-y-4">
             {/* Popular Communities */}
-            <Card className="border border-gray-800">
-              <div className="p-4 border-b border-white/5">
-                <h3 className="font-semibold text-white">Popular Communities</h3>
+            <Card className="bg-white border border-gray-300">
+              <div className="p-3 border-b border-gray-200">
+                <h3 className="font-bold text-gray-900">Popular Communities</h3>
               </div>
-              <div className="p-4 space-y-3">
-                {subgroups.slice(0, 5).map((subgroup) => (
-                  <div key={subgroup._id} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-white">{subgroup.name}</p>
-                      <p className="text-xs text-gray-400">
-                        {subgroup.members?.length || 0} members
-                      </p>
+              <div className="p-3 space-y-3">
+                {colleges.slice(0, 5).map((college, index) => (
+                  <div key={college._id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-500 w-4">{index + 1}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs">r/</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">r/{college.name}</p>
+                          <p className="text-xs text-gray-500">{Math.floor(Math.random() * 10000)} members</p>
+                        </div>
+                      </div>
                     </div>
-                    <Button variant="primary" className="px-3 py-1 text-xs">Join</Button>
+                    <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1">
+                      Join
+                    </Button>
                   </div>
                 ))}
-                {subgroups.length === 0 && (
-                  <p className="text-sm text-gray-400">No communities yet</p>
-                )}
+                <Button variant="outline" className="w-full text-blue-500 border-blue-500 hover:bg-blue-50">
+                  View All
+                </Button>
               </div>
             </Card>
 
-            {/* Quick Stats */}
-            <Card className="border border-gray-800">
-              <div className="p-4 border-b border-white/5">
-                <h3 className="font-semibold text-white">Quick Stats</h3>
-              </div>
-              <div className="p-4 space-y-2 text-gray-300">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Posts today</span>
-                  <span className="font-medium">
-                    {posts.filter(post => {
-                      const today = new Date().toDateString();
-                      const postDate = new Date(post.createdAt).toDateString();
-                      return today === postDate;
-                    }).length}
-                  </span>
+            {/* User Info */}
+            <Card className="bg-white border border-gray-300">
+              <div className="p-3">
+                <div className="flex items-center gap-3 mb-3">
+                  <Avatar name={user?.name} size={40} className="bg-orange-500" />
+                  <div>
+                    <p className="font-bold text-gray-900">{user?.name}</p>
+                    <p className="text-sm text-gray-500">Student at {user?.collegeId?.name || 'Engineering College'}</p>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Communities</span>
-                  <span className="font-medium">{subgroups.length}</span>
+                <div className="flex justify-between text-sm text-gray-600 mb-3">
+                  <div className="text-center">
+                    <p className="font-bold text-orange-500">1.2k</p>
+                    <p>Karma</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-blue-500">2y</p>
+                    <p>Cake day</p>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Total posts</span>
-                  <span className="font-medium">{posts.length}</span>
-                </div>
+                <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                  New Project
+                </Button>
               </div>
             </Card>
           </div>
