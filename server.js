@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -13,7 +14,10 @@ app.use(cors({
     'http://localhost:3001',
     'https://prodiny.vercel.app',
     'https://prodiny-client.vercel.app',
-    // Add your actual Vercel domain here
+    'https://www.prodiny.com',
+    'https://prodiny.com',
+    'https://prodiny.onrender.com', // Add your Render domain
+    // Add your actual domains here
     process.env.CLIENT_URL || 'http://localhost:3000'
   ],
   credentials: true
@@ -33,6 +37,12 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/colleges', collegeRoutes);
 app.use('/api/subgroups', subgroupRoutes);
 app.use('/api/users', userRoutes);
+
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from React build
+  app.use(express.static(path.join(__dirname, 'client/build')));
+}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -87,6 +97,13 @@ mongoose.connection.on('reconnected', () => {
 app.get('/', (req, res) => {
   res.json({ message: 'Prodiny API is running!' });
 });
+
+// Catch-all handler: send back React's index.html file for any non-API routes
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build/index.html'));
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {

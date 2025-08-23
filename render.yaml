@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: prodiny
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        value: mongodb+srv://ganesh:Prodiny123@cluster0.ucqxdv1.mongodb.net/prodiny?retryWrites=true&w=majority&appName=Cluster0
+      - key: JWT_SECRET
+        value: your_super_secure_jwt_secret_key_at_least_32_characters_long_change_this_for_production
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: CLIENT_URL
+        value: https://www.prodiny.com

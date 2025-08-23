@@ -3,7 +3,7 @@ import axios from 'axios';
 // API Base URL - works for both development and production
 const API_BASE_URL = process.env.REACT_APP_API_URL || 
   (process.env.NODE_ENV === 'production' 
-    ? '/api'  // Use relative path in production (Vercel)
+    ? '/api'  // Use relative path in production (works for both Vercel and Render)
     : 'http://localhost:5000/api'  // Use localhost in development
   );
 
