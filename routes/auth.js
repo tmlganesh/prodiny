@@ -31,13 +31,13 @@ router.post('/signup', [
     const { name, email, password, collegeId, role } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email }).maxTimeMS(5000);
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
     // Check if college exists
-    const college = await College.findById(collegeId);
+    const college = await College.findById(collegeId).maxTimeMS(5000);
     if (!college) {
       return res.status(400).json({ message: 'Invalid college ID' });
     }
@@ -68,7 +68,16 @@ router.post('/signup', [
       }
     });
   } catch (error) {
-    console.error(error);
+    console.error('Signup error:', error);
+    
+    if (error.name === 'MongooseError' && error.message.includes('buffering timed out')) {
+      return res.status(503).json({ message: 'Database connection timeout. Please try again.' });
+    }
+    
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'User already exists with this email' });
+    }
+    
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -89,7 +98,9 @@ router.post('/login', [
     const { email, password } = req.body;
 
     // Check if user exists
-    const user = await User.findOne({ email }).populate('collegeId', 'name domain');
+    const user = await User.findOne({ email })
+      .populate('collegeId', 'name domain')
+      .maxTimeMS(5000);
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -115,7 +126,12 @@ router.post('/login', [
       }
     });
   } catch (error) {
-    console.error(error);
+    console.error('Login error:', error);
+    
+    if (error.name === 'MongooseError' && error.message.includes('buffering timed out')) {
+      return res.status(503).json({ message: 'Database connection timeout. Please try again.' });
+    }
+    
     res.status(500).json({ message: 'Server error' });
   }
 });

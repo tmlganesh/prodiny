@@ -36,12 +36,42 @@ if (!process.env.MONGODB_URI) {
   console.warn('To use a remote database, create a .env file at the project root with MONGODB_URI=<your-uri>');
 }
 
-mongoose.connect(mongoUri, {
+// Disable buffering to prevent timeout errors
+mongoose.set('bufferCommands', false);
+
+// Enhanced MongoDB connection options
+const mongooseOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 30000, // 30 seconds timeout for server selection
+  socketTimeoutMS: 45000, // 45 seconds timeout for socket operations
+  maxPoolSize: 10, // Maintain up to 10 socket connections
+  minPoolSize: 1, // Maintain at least 1 socket connection
+  maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
+};
+
+mongoose.connect(mongoUri, mongooseOptions)
+.then(() => {
+  console.log('MongoDB connected successfully');
+  console.log('Database name:', mongoose.connection.db.databaseName);
 })
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1); // Exit if cannot connect to database
+});
+
+// Handle MongoDB connection events
+mongoose.connection.on('error', err => {
+  console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('MongoDB reconnected');
+});
 
 // Basic route
 app.get('/', (req, res) => {

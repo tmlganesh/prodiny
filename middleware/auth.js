@@ -11,7 +11,12 @@ const auth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select('-password');
+    
+    // Add timeout to database query
+    const user = await User.findById(decoded.userId)
+      .select('-password')
+      .maxTimeMS(5000) // 5 second timeout
+      .exec();
     
     if (!user) {
       return res.status(401).json({ message: 'Token is not valid' });
@@ -20,6 +25,10 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    if (error.name === 'MongooseError' && error.message.includes('buffering timed out')) {
+      return res.status(503).json({ message: 'Database connection timeout. Please try again.' });
+    }
+    console.error('Auth middleware error:', error);
     res.status(401).json({ message: 'Token is not valid' });
   }
 };

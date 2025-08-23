@@ -4,11 +4,11 @@ import { useAuth } from '../contexts/AuthContext';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter } from 'components/ui/card';
-import Button from 'components/ui/button';
-import { Input } from 'components/ui/input';
-import { Label } from 'components/ui/label';
-import Combobox from 'components/ui/combobox';
+import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter } from '../components/ui/card';
+import Button from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import Combobox from '../components/ui/combobox';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
